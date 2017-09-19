@@ -36,8 +36,11 @@ public class Impurity {
         
         double deltaY = (y + 10) - p.getY();
         double deltaX = (x + 10) - p.getX();
-        xVelocity = -deltaX/Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
-        yVelocity = -deltaY/Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+        double degrees = Math.atan2(deltaY, deltaX);
+        if(degrees < 0)
+            degrees += 2 * Math.PI;
+        xVelocity = -Math.cos(degrees);
+        yVelocity = -Math.sin(degrees);
     }
     
     public void move() {
@@ -55,6 +58,10 @@ public class Impurity {
     
     public Rectangle2D getRect() {
         return impurityTemp;
+    }
+    
+    public double randomDouble(double min, double max) {
+        return min + (max - min) * rand.nextDouble();
     }
     
 }

@@ -47,7 +47,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         mainFrame.setLocation(dim.width / 2 - mainFrame.getWidth() / 2, dim.height / 2 - mainFrame.getHeight() / 2);
         mainFrame.setVisible(true);
         t.start();
-        Timer impuritySpawner = new Timer(1000, r);
+        Timer impuritySpawner = new Timer(500, r);
         impuritySpawner.setActionCommand("spawn");
         impuritySpawner.start();
         try {
