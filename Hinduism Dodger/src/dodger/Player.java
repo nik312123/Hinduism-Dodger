@@ -3,33 +3,80 @@ package dodger;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class Player {
     private double x = Runner.mainFrame.getWidth()/2, y = Runner.mainFrame.getHeight()/2;
-    private double xChange = 0, yChange = 0;
+    private double xVelocity = 0, yVelocity = 0;
     
     private int invincibilityFrame = 0;
     private int invincibilitySwitchCounter = 20;
+    private int monkFrame = 0;
+    private int monkFrameCounter = 0;
+    
+    private int monkPixels[][][] = new int[8][60][60];
     
     private boolean left = false, right = false, up = false, down = false;
     private boolean isVisible = true;
     
-    private Rectangle2D playerTemp = new Rectangle2D.Double(x - 20, y - 20, 40, 40);
+    private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 5, 5, 200, 15);
+            
+    private BufferedImage[] monk = new BufferedImage[8];
+    
+    public Player() {
+        try {
+            for(int i = 0; i < 8; ++i)
+                monk[i] = ImageIO.read(Runner.class.getResource("/images/monk" + i + ".png"));
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+        for(int i = 0; i < monkPixels.length; ++i)
+            for(int j = 0; j < monkPixels[i].length; ++j)
+                for(int k = 0; k < monkPixels[i][j].length; ++k)
+                    monkPixels[i][j][k] = monk[i].getRGB(j, k);
+    }
     
     public void draw(Graphics g) {
+        changeVelocity();
+        checkVisibility();
+        adjustMonkFrame();
+        Graphics2D g2d = (Graphics2D) g.create();
+        AffineTransform transform = new AffineTransform();
+        transform.translate(x - monk[monkFrame].getWidth()/2.0, y - monk[monkFrame].getHeight()/2.0);
+        double angle = setAngleAndConstrain();
+        transform.rotate(angle + Math.PI/2, monk[monkFrame].getWidth()/2, monk[monkFrame].getHeight()/2);
+        hb.draw(g2d);
+        if(isVisible) {
+            if(!up && !down && !left && !right)
+                monkFrame = 0;
+            g2d.drawImage(monk[monkFrame], transform, null);
+        }
+        g2d.dispose();
+    }
+    
+    private void changeVelocity() {
         if(left)
-            xChange -= 0.05;
+            xVelocity -= 0.05;
         if(right)
-            xChange += 0.05;
+            xVelocity += 0.05;
         if(up)
-            yChange -= 0.05;
+            yVelocity -= 0.05;
         if(down)
-            yChange += 0.05;
-        x += xChange;
-        y += yChange;
-        xChange *= 0.98;
-        yChange *= 0.98;
+            yVelocity += 0.05;
+        x += xVelocity;
+        y += yVelocity;
+        xVelocity *= 0.98;
+        yVelocity *= 0.98;
+    }
+    
+    private void checkVisibility() {
         if(Runner.isInjured() && ++invincibilityFrame % invincibilitySwitchCounter == 0) {
             isVisible = !isVisible;
             invincibilityFrame = 0;
@@ -40,32 +87,54 @@ public class Player {
         }
         else if(!isVisible && !Runner.isInjured())
             isVisible = true;
-        Graphics2D g2d = (Graphics2D) g.create();
-        playerTemp.setRect(x - playerTemp.getWidth()/2, y - playerTemp.getWidth()/2, playerTemp.getWidth(), playerTemp.getHeight());
-        constraints();
-        g2d.setColor(Color.BLACK);
-        if(isVisible)
-            g2d.fill(playerTemp);
-        g2d.dispose();
     }
     
-    public void constraints() {
-        if(x >= Runner.mainFrame.getWidth() - playerTemp.getWidth()/2) {
-            x = Runner.mainFrame.getWidth() - playerTemp.getWidth()/2;
-            xChange = 0;
+    private void adjustMonkFrame() {
+        if(++monkFrameCounter % 10 == 0) {
+            if(monkFrame != 7)
+                ++monkFrame;
+            else
+                monkFrame = 0;
+            monkFrameCounter = 0;
         }
-        else if(x <= 0 + playerTemp.getWidth()/2) {
-            x = 0 + playerTemp.getWidth()/2;
-            xChange = 0;
+    }
+    
+    private double setAngleAndConstrain() {
+        if(x >= Runner.mainFrame.getWidth() - 21) {
+            x = Runner.mainFrame.getWidth() - 21;
+            xVelocity = -xVelocity;
         }
-        if(y >= Runner.mainFrame.getHeight() - playerTemp.getWidth()) {
-            y = Runner.mainFrame.getHeight() - playerTemp.getWidth();
-            yChange = 0;
+        else if(x <= 21) {
+            x = 21;
+            xVelocity = -xVelocity;
         }
-        else if(y <= 0 + playerTemp.getWidth()/2) {
-            y = 0 + playerTemp.getWidth()/2;
-            yChange = 0;
+        if(y >= Runner.mainFrame.getHeight() - 40) {
+            y = Runner.mainFrame.getHeight() - 40;
+            yVelocity = -yVelocity;
         }
+        else if(y <= 20) {
+            y = 20;
+            yVelocity = -yVelocity;
+        }
+        double angle = Math.atan2(yVelocity, xVelocity);
+        if(angle < 0)
+            angle += 2 * Math.PI;
+        return angle;
+    }
+    
+    public boolean touchingImpurity(Rectangle2D impurityRect) {
+        for(int j = 0; j < 60; j++) {
+            for(int k = 0; k < 60; k++) {
+                if(monkPixels[monkFrame][j][k] != 0 && impurityRect.contains(new Point2D.Double(x - monk[monkFrame].getWidth()/2.0 + k, y - monk[monkFrame].getHeight()/2.0 + j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public void damage() {
+        hb.damage(0.2);
     }
     
     public void setRight(boolean right) {
@@ -90,10 +159,6 @@ public class Player {
     
     public double getX() {
         return x;
-    }
-    
-    public Rectangle2D getRect() {
-        return playerTemp;
     }
     
 }
