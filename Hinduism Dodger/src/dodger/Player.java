@@ -136,7 +136,7 @@ public class Player {
     }
     
     public void damage() {
-        hb.damage(0.2);
+        hb.damage(0.21);
     }
     
     public void setRight(boolean right) {

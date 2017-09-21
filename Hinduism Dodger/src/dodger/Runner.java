@@ -36,9 +36,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Timer invincibilityTimer;
     
     private static Font hpFont;
+    private static Font scoreFont;
     
     public static void main(String[] args) throws FontFormatException, IOException {
         hpFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/deteSans.otf").openStream()).deriveFont(18.0f);
+        scoreFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/8BO_JVE.ttf").openStream()).deriveFont(20.0f);
         
         Runner r = new Runner();
         r.setSize(700, 700);
@@ -70,38 +72,52 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     @Override
     public void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
+        Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        p.draw(g2d);
-        for(int i = 0; i < impurities.size(); ++i) {
-            BadKarma bk = impurities.get(i);
-            if(bk.isOutOfBounds()) {
-                impurities.remove(i);
-                --i;
+        if(p.getHealthBar().getPercentage() != 0) {
+            p.draw(g2d);
+            for(int i = 0; i < impurities.size(); ++i) {
+                BadKarma bk = impurities.get(i);
+                if(bk.isOutOfBounds()) {
+                    impurities.remove(i);
+                    --i;
+                }
+                else if(!injured && p.touchingImpurity(bk.getRect())) {
+                    injured = true;
+                    impurities.remove(i);
+                    --i;
+                    p.damage();
+                    invincibilityTimer.start();
+                }
+                else
+                    bk.draw(g2d);
             }
-            else if(!injured && p.touchingImpurity(bk.getRect())) {
-                injured = true;
-                impurities.remove(i);
-                --i;
-                p.damage();
-                invincibilityTimer.start();
+            g2d.setColor(new Color(105, 105, 105));
+            g2d.fillRect(0, 0, mainFrame.getWidth(), 25);
+            p.getHealthBar().draw(g2d);
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(hpFont);
+            g2d.drawString("HP:", 20, 18);
+            g2d.setFont(scoreFont);
+            g2d.drawString("Score: " + score, 550, 18);
+            g2d.dispose();
+            if(++scoreCounter % 100 == 0) {
+                score += 10;
+                scoreCounter = 0;
             }
-            else
-                bk.draw(g2d);
         }
-        g2d.setColor(new Color(105, 105, 105));
-        g2d.fillRect(0, 0, mainFrame.getWidth(), 25);
-        p.getHealthBar().draw(g2d);
-        g2d.setColor(Color.WHITE);
-        g2d.setFont(hpFont);
-        g2d.drawString("HP:", 20, 18);
-        g2d.drawString("Score: " + score, 550, 18);
+        else {
+            g2d.setColor(new Color(96, 96, 96));
+            g2d.fillRect(0, 0, mainFrame.getWidth(), mainFrame.getHeight());
+            g2d.setFont(hpFont.deriveFont(150.0f));
+            g2d.setColor(Color.WHITE);
+            String gameOver = "Game Over";
+            g2d.drawString(gameOver, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(gameOver))/2 + 5, 200);
+            g2d.setFont(scoreFont.deriveFont(90.0f));
+            String scoreString = "Score: " + score;
+            g2d.drawString(scoreString, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(scoreString))/2, 400);
+        }
         g2d.dispose();
-        g.dispose();
-        if(++scoreCounter % 100 == 0) {
-            score += 10;
-            scoreCounter = 0;
-        }
     }
     
     @Override
