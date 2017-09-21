@@ -33,7 +33,7 @@ public class BadKarma {
                 break;
             case 2:
                 x = rand.nextInt(680);
-                y = -25;
+                y = -5;
                 startingSide = 2;
                 break;
             case 3:
@@ -77,13 +77,13 @@ public class BadKarma {
     public boolean isOutOfBounds() {
         switch(startingSide) {
             case 0:
-                return x >= 700 || y >= 700 || y <= -20;
+                return x >= 700 || y >= 700 || y <= 0;
             case 1:
-                return x <= -20 || y >= 700 || y <= -20;
+                return x <= -20 || y >= 700 || y <= 0;
             case 2:
                 return x >= 700 || x <= -20 || y >= 700;
             case 3:
-                return x >= 700 || x <= -20 || y <= -20;
+                return x >= 700 || x <= -20 || y <= 0;
         }
         return false;
     }

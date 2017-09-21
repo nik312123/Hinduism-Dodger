@@ -1,6 +1,9 @@
 package dodger;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -9,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -17,6 +21,9 @@ import javax.swing.Timer;
 
 public class Runner extends JPanel implements ActionListener, KeyListener {
     private static final long serialVersionUID = 1L;
+    
+    private static int score = 0;
+    private static int scoreCounter = 0;
     
     private static boolean injured = false;
         
@@ -28,10 +35,14 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     private static Timer invincibilityTimer;
     
-    public static void main(String[] args) {
+    private static Font hpFont;
+    
+    public static void main(String[] args) throws FontFormatException, IOException {
+        hpFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/deteSans.otf").openStream()).deriveFont(18.0f);
+        
         Runner r = new Runner();
         r.setSize(700, 700);
-        
+                
         mainFrame = new JFrame();
         mainFrame.setSize(700, 700);
         
@@ -78,8 +89,19 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             else
                 bk.draw(g2d);
         }
+        g2d.setColor(new Color(105, 105, 105));
+        g2d.fillRect(0, 0, mainFrame.getWidth(), 25);
+        p.getHealthBar().draw(g2d);
+        g2d.setColor(Color.WHITE);
+        g2d.setFont(hpFont);
+        g2d.drawString("HP:", 20, 18);
+        g2d.drawString("Score: " + score, 550, 18);
         g2d.dispose();
         g.dispose();
+        if(++scoreCounter % 100 == 0) {
+            score += 10;
+            scoreCounter = 0;
+        }
     }
     
     @Override
