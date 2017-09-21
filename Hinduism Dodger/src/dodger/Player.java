@@ -12,7 +12,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Player {
-    private double x = Runner.mainFrame.getWidth()/2, y = Runner.mainFrame.getHeight()/2;
+    private double x = Runner.mainFrame.getWidth()/2, y = Runner.mainFrame.getHeight()/2 - 10;
     private double xVelocity = 0, yVelocity = 0;
     
     private int invincibilityFrame = 0;
@@ -25,7 +25,7 @@ public class Player {
     private boolean left = false, right = false, up = false, down = false;
     private boolean isVisible = true;
     
-    private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 5, 5, 200, 15);
+    private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 50, 5, 200, 15);
             
     private BufferedImage[] monk = new BufferedImage[8];
     
@@ -50,9 +50,11 @@ public class Player {
         Graphics2D g2d = (Graphics2D) g.create();
         AffineTransform transform = new AffineTransform();
         transform.translate(x - monk[monkFrame].getWidth()/2.0, y - monk[monkFrame].getHeight()/2.0);
-        double angle = setAngleAndConstrain();
+        constrain();
+        double angle = Math.atan2(yVelocity, xVelocity);
+        if(angle < 0)
+            angle += 2 * Math.PI;
         transform.rotate(angle + Math.PI/2, monk[monkFrame].getWidth()/2, monk[monkFrame].getHeight()/2);
-        hb.draw(g2d);
         if(isVisible) {
             if(!up && !down && !left && !right)
                 monkFrame = 0;
@@ -99,7 +101,7 @@ public class Player {
         }
     }
     
-    private double setAngleAndConstrain() {
+    private void constrain() {
         if(x >= Runner.mainFrame.getWidth() - 21) {
             x = Runner.mainFrame.getWidth() - 21;
             xVelocity = -xVelocity;
@@ -112,14 +114,14 @@ public class Player {
             y = Runner.mainFrame.getHeight() - 40;
             yVelocity = -yVelocity;
         }
-        else if(y <= 20) {
-            y = 20;
+        else if(y <= 40) {
+            y = 40;
             yVelocity = -yVelocity;
         }
-        double angle = Math.atan2(yVelocity, xVelocity);
-        if(angle < 0)
-            angle += 2 * Math.PI;
-        return angle;
+    }
+    
+    public HealthBar getHealthBar() {
+        return hb;
     }
     
     public boolean touchingImpurity(Rectangle2D impurityRect) {
