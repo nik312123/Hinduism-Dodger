@@ -48,7 +48,7 @@ public class BadKarma {
         double angle = Math.atan2(deltaY, deltaX);
         if(angle < 0)
             angle += 2 * Math.PI;
-        angle += randomDouble(-Math.PI/12, Math.PI/12);
+        angle += randomDouble(-Math.PI/18, Math.PI/18);
         xVelocity = Math.cos(angle)/2;
         yVelocity = Math.sin(angle)/2;
     }
