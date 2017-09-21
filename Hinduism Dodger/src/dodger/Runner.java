@@ -24,6 +24,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     private static int score = 0;
     private static int scoreCounter = 0;
+    private static int impuritySpawnerCounter = 0;
     
     private static boolean injured = false;
         
@@ -34,6 +35,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     public static JFrame mainFrame;
     
     private static Timer invincibilityTimer;
+    private static Timer impuritySpawner;
     
     private static Font hpFont;
     private static Font scoreFont;
@@ -61,7 +63,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         Timer drawTimer = new Timer(5, r);
         drawTimer.start();
         
-        Timer impuritySpawner = new Timer(500, r);
+        impuritySpawner = new Timer(1000, r);
         impuritySpawner.setActionCommand("spawn");
         impuritySpawner.start();
         
@@ -118,6 +120,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             g2d.drawString(scoreString, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(scoreString))/2, 400);
         }
         g2d.dispose();
+        if(++impuritySpawnerCounter % 1500 == 0 && impuritySpawner.getDelay() > 200) {
+            impuritySpawner.setDelay(impuritySpawner.getDelay() - 50);
+            impuritySpawnerCounter = 0;
+        }
     }
     
     @Override
