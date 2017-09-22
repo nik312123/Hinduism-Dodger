@@ -35,7 +35,7 @@ public class BadKarma {
                 break;
             case 2:
                 x = rand.nextInt(Runner.mainFrame.getWidth() - 20);
-                y = -5;
+                y = 25;
                 startingSide = 2;
                 break;
             case 3:
@@ -71,8 +71,6 @@ public class BadKarma {
             karmaFrameCounter = 0;
         }
         g2d.drawImage(Runner.badKarma[karmaFrame], transform, null);
-//        g2d.setColor(Color.RED);
-//        g2d.fill(impurityTemp);
         move();
     }
     

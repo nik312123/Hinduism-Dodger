@@ -25,7 +25,7 @@ public class Player {
     private boolean left = false, right = false, up = false, down = false;
     private boolean isVisible = true;
     
-    private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 50, 5, 200, 15);
+    private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 50, 35, 200, 15);
             
     private static BufferedImage[] monk = new BufferedImage[8];
     
@@ -33,7 +33,7 @@ public class Player {
         if(Runner.isFirstTime) {
             try {
                 for(int i = 0; i < 8; ++i)
-                    monk[i] = ImageIO.read(Runner.class.getResource("/images/monk" + i + ".png"));
+                    monk[i] = ImageIO.read(Runner.class.getResource("/images/monk/monk" + i + ".png"));
             }
             catch(IOException e) {
                 e.printStackTrace();
@@ -112,12 +112,12 @@ public class Player {
             x = 21;
             xVelocity = -xVelocity;
         }
-        if(y >= Runner.mainFrame.getHeight() - 40) {
-            y = Runner.mainFrame.getHeight() - 40;
+        if(y >= Runner.mainFrame.getHeight() - 20) {
+            y = Runner.mainFrame.getHeight() - 20;
             yVelocity = -yVelocity;
         }
-        else if(y <= 40) {
-            y = 40;
+        else if(y <= 70) {
+            y = 70;
             yVelocity = -yVelocity;
         }
     }

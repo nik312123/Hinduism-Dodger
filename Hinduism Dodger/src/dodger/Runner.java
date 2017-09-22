@@ -40,6 +40,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Player p;
     
     private static GradientButton resetButton;
+    private static GradientButton closeButton;
+    private static GradientButton draggableButton;
     
     private static ArrayList<BadKarma> impurities;
         
@@ -55,6 +57,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Font scoreFont;
     
     private static BufferedImage reset;
+    private static BufferedImage close;
+    private static BufferedImage draggable;
     public static BufferedImage[] badKarma = new BufferedImage[14];
     
     public static void main(String... args) throws FontFormatException, IOException {
@@ -64,8 +68,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             hpFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/deteSans.otf").openStream()).deriveFont(18.0f);
             scoreFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/8BO_JVE.ttf").openStream()).deriveFont(20.0f);
             for(int i = 0; i < 14; ++i)
-                badKarma[i] = ImageIO.read(Runner.class.getResource("/images/karma" + i + ".png"));
+                badKarma[i] = ImageIO.read(Runner.class.getResource("/images/karma/karma" + i + ".png"));
             reset = ImageIO.read(Runner.class.getResource("/images/reset.png"));
+            close = ImageIO.read(Runner.class.getResource("/images/close.png"));
+            draggable = ImageIO.read(Runner.class.getResource("/images/draggable.png"));
         }
         
         Runner r = new Runner();
@@ -105,10 +111,72 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             public void mouseMoved(MouseEvent e) {}
             
         };
+        closeButton = new GradientButton(close, new Color(105, 105, 105), Color.RED, 40, 2, 2, 24, 24) {
+            private static final long serialVersionUID = 1L;
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.exit(0);
+            }
+            
+            @Override
+            public void mousePressed(MouseEvent e) {}
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            
+            @Override
+            public void mouseDragged(MouseEvent e) {}
+            
+            @Override
+            public void mouseMoved(MouseEvent e) {}
+            
+        };
+        draggableButton = new GradientButton(draggable, new Color(105, 105, 105), Color.BLUE, 40, 30, 2, 24, 24) {
+            private static final long serialVersionUID = 1L;
+            private int xPos, yPos;
+            
+            @Override
+            public void mouseClicked(MouseEvent e) {}
+            
+            @Override
+            public void mousePressed(MouseEvent e) {
+                xPos = e.getX();
+                yPos = e.getY();
+            }
+            
+            @Override
+            public void mouseReleased(MouseEvent e) {}
+            
+            @Override
+            public void mouseEntered(MouseEvent e) {}
+            
+            @Override
+            public void mouseExited(MouseEvent e) {}
+            
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mainFrame.setLocation((int) (mainFrame.getLocation().getX() + e.getX() - xPos), (int) (mainFrame.getLocation().getY() + e.getY() - yPos));
+            }
+            
+            @Override
+            public void mouseMoved(MouseEvent e) {}
+            
+        };
         resetButton.setVisible(false);
+        closeButton.setVisible(true);
+        draggableButton.setVisible(true);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.add(r);
         mainFrame.add(resetButton);
+        mainFrame.add(closeButton);
+        mainFrame.add(draggableButton);
         mainFrame.addKeyListener(r);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         mainFrame.setLocation(dim.width / 2 - mainFrame.getWidth() / 2, dim.height / 2 - mainFrame.getHeight() / 2);
@@ -154,14 +222,13 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         bk.draw(g2d);
                 }
                 g2d.setColor(new Color(105, 105, 105));
-                g2d.fillRect(0, 0, mainFrame.getWidth(), 25);
+                g2d.fillRect(0, 0, mainFrame.getWidth(), 55);
                 p.getHealthBar().draw(g2d);
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(hpFont);
-                g2d.drawString("HP:", 20, 18);
+                g2d.drawString("HP:", 20, 48);
                 g2d.setFont(scoreFont);
-                g2d.drawString("Score: " + score, 450, 18);
-                g2d.dispose();
+                g2d.drawString("Score: " + score, 450, 48);
                 if(++scoreCounter % 100 == 0) {
                     score += 10;
                     scoreCounter = 0;
@@ -180,6 +247,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 resetButton.draw(g2d);
                 resetButton.setVisible(true);
             }
+            closeButton.draw(g2d);
+            draggableButton.draw(g2d);
             g2d.dispose();
             if(++impuritySpawnerCounter % 1500 == 0 && impuritySpawner.getDelay() > 200) {
                 impuritySpawner.setDelay(impuritySpawner.getDelay() - 50);
