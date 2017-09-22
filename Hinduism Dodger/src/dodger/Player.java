@@ -20,27 +20,29 @@ public class Player {
     private int monkFrame = 0;
     private int monkFrameCounter = 0;
     
-    private int monkPixels[][][] = new int[8][60][60];
+    private static int monkPixels[][][] = new int[8][60][60];
     
     private boolean left = false, right = false, up = false, down = false;
     private boolean isVisible = true;
     
     private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 50, 5, 200, 15);
             
-    private BufferedImage[] monk = new BufferedImage[8];
+    private static BufferedImage[] monk = new BufferedImage[8];
     
     public Player() {
-        try {
-            for(int i = 0; i < 8; ++i)
-                monk[i] = ImageIO.read(Runner.class.getResource("/images/monk" + i + ".png"));
+        if(Runner.isFirstTime) {
+            try {
+                for(int i = 0; i < 8; ++i)
+                    monk[i] = ImageIO.read(Runner.class.getResource("/images/monk" + i + ".png"));
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+            }
+            for(int i = 0; i < monkPixels.length; ++i)
+                for(int j = 0; j < monkPixels[i].length; ++j)
+                    for(int k = 0; k < monkPixels[i][j].length; ++k)
+                        monkPixels[i][j][k] = monk[i].getRGB(j, k);
         }
-        catch(IOException e) {
-            e.printStackTrace();
-        }
-        for(int i = 0; i < monkPixels.length; ++i)
-            for(int j = 0; j < monkPixels[i].length; ++j)
-                for(int k = 0; k < monkPixels[i][j].length; ++k)
-                    monkPixels[i][j][k] = monk[i].getRGB(j, k);
     }
     
     public void draw(Graphics g) {

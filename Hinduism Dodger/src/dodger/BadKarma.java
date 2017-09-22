@@ -1,8 +1,8 @@
 package dodger;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
@@ -11,38 +11,39 @@ public class BadKarma {
     private double xVelocity, yVelocity;
     
     private int startingSide;
+    private int karmaFrame = 0;
+    private int karmaFrameCounter = 0;
+    
+    public static Player p;
     
     private Rectangle2D impurityTemp = new Rectangle2D.Double();
     
     private Random rand = new Random();
-    
-    public static Player p;
     
     public BadKarma() {
         int side = rand.nextInt(4);
         switch(side) {
             case 0:
                 x = -25;
-                y = rand.nextInt(680);
+                y = rand.nextInt(Runner.mainFrame.getHeight() - 20);
                 startingSide = 0;
                 break;
             case 1:
-                x = 705;
-                y = rand.nextInt(680);
+                x = Runner.mainFrame.getWidth() + 5;
+                y = rand.nextInt(Runner.mainFrame.getHeight() - 20);
                 startingSide = 1;
                 break;
             case 2:
-                x = rand.nextInt(680);
+                x = rand.nextInt(Runner.mainFrame.getWidth() - 20);
                 y = -5;
                 startingSide = 2;
                 break;
             case 3:
-                x = rand.nextInt(680);
-                y = 705;
+                x = rand.nextInt(Runner.mainFrame.getWidth() - 20);
+                y = Runner.mainFrame.getHeight() + 5;
                 startingSide = 3;
                 break;
         }
-        
         double deltaY = p.getY() - (y + 10);
         double deltaX = p.getX() - (x + 10);
         double angle = Math.atan2(deltaY, deltaX);
@@ -60,9 +61,18 @@ public class BadKarma {
     
     public void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
-        impurityTemp.setRect(x, y, 20, 20);
-        g2d.setColor(Color.RED);
-        g2d.fill(impurityTemp);
+        impurityTemp.setRect(x, y, 22, 22);
+        AffineTransform transform = new AffineTransform();
+        transform.translate(x, y);
+        if(++karmaFrameCounter % 20 == 0) {
+            ++karmaFrame;
+            if(karmaFrame == 10)
+                karmaFrame = 0;
+            karmaFrameCounter = 0;
+        }
+        g2d.drawImage(Runner.badKarma[karmaFrame], transform, null);
+//        g2d.setColor(Color.RED);
+//        g2d.fill(impurityTemp);
         move();
     }
     
@@ -77,13 +87,13 @@ public class BadKarma {
     public boolean isOutOfBounds() {
         switch(startingSide) {
             case 0:
-                return x >= 700 || y >= 700 || y <= 0;
+                return x >= Runner.mainFrame.getWidth() || y >= Runner.mainFrame.getHeight() || y <= 0;
             case 1:
-                return x <= -20 || y >= 700 || y <= 0;
+                return x <= -20 || y >= Runner.mainFrame.getHeight() || y <= 0;
             case 2:
-                return x >= 700 || x <= -20 || y >= 700;
+                return x >= Runner.mainFrame.getWidth() || x <= -20 || y >= Runner.mainFrame.getHeight();
             case 3:
-                return x >= 700 || x <= -20 || y <= 0;
+                return x >= Runner.mainFrame.getWidth() || x <= -20 || y <= 0;
         }
         return false;
     }
