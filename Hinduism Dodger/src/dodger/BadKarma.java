@@ -13,6 +13,11 @@ public class BadKarma {
     private int startingSide;
     private int karmaFrame = 0;
     private int karmaFrameCounter = 0;
+    private int pulseFrameCounter = 0;
+    private int pulseFrame = 0;
+    private int pulseStartCounter = 0;
+    
+    private boolean pulseStart = false;
     
     public static Player p;
     
@@ -61,15 +66,28 @@ public class BadKarma {
     
     public void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
-        impurityTemp.setRect(x, y, 22, 22);
+        impurityTemp.setRect(x + 19, y + 19, 22, 22);
         AffineTransform transform = new AffineTransform();
         transform.translate(x, y);
-        if(++karmaFrameCounter % 20 == 0) {
+        if(++karmaFrameCounter % 15 == 0) {
             ++karmaFrame;
-            if(karmaFrame == 10)
+            if(karmaFrame == 9)
                 karmaFrame = 0;
             karmaFrameCounter = 0;
         }
+        if(!pulseStart && ++pulseStartCounter % 50 == 0) {
+            pulseStart = true;
+            pulseStartCounter = 0;
+        }
+        else if(pulseStart && ++pulseFrameCounter % 20 == 0) {
+            ++pulseFrame;
+            if(pulseFrame == 29) {
+                pulseFrame = 0;
+                pulseStart = false;
+            }
+            pulseFrameCounter = 0;
+        }
+        g2d.drawImage(Runner.pulse[pulseFrame], transform, null);
         g2d.drawImage(Runner.badKarma[karmaFrame], transform, null);
         move();
     }
