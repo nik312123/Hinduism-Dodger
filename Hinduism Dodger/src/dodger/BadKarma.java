@@ -75,11 +75,11 @@ public class BadKarma {
                 karmaFrame = 0;
             karmaFrameCounter = 0;
         }
-        if(!pulseStart && ++pulseStartCounter % 50 == 0) {
+        if(!pulseStart && ++pulseStartCounter % 100 == 0) {
             pulseStart = true;
             pulseStartCounter = 0;
         }
-        else if(pulseStart && ++pulseFrameCounter % 20 == 0) {
+        else if(pulseStart && ++pulseFrameCounter % 15 == 0) {
             ++pulseFrame;
             if(pulseFrame == 29) {
                 pulseFrame = 0;
