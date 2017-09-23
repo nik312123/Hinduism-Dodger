@@ -59,7 +59,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage reset;
     private static BufferedImage close;
     private static BufferedImage draggable;
-    public static BufferedImage[] badKarma = new BufferedImage[14];
+    public static BufferedImage[] badKarma = new BufferedImage[9];
+    public static BufferedImage[] pulse = new BufferedImage[29];
     
     public static void main(String... args) throws FontFormatException, IOException {
         impurities = new ArrayList<BadKarma>();
@@ -67,8 +68,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         if(isFirstTime) {
             hpFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/deteSans.otf").openStream()).deriveFont(18.0f);
             scoreFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/8BO_JVE.ttf").openStream()).deriveFont(20.0f);
-            for(int i = 0; i < 14; ++i)
+            for(int i = 0; i < 9; ++i)
                 badKarma[i] = ImageIO.read(Runner.class.getResource("/images/karma/karma" + i + ".png"));
+            for(int i = 0; i < 29; ++i)
+                pulse[i] = ImageIO.read(Runner.class.getResource("/images/pulse/pulse" + i + ".png"));
             reset = ImageIO.read(Runner.class.getResource("/images/reset.png"));
             close = ImageIO.read(Runner.class.getResource("/images/close.png"));
             draggable = ImageIO.read(Runner.class.getResource("/images/draggable.png"));
