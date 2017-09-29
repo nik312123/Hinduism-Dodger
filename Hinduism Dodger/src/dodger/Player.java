@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 public class Player {
     private double x = Runner.mainFrame.getWidth()/2, y = Runner.mainFrame.getHeight()/2 - 10;
     private double xVelocity = 0, yVelocity = 0;
+    private static double angle;
     
     private int invincibilityFrame = 0;
     private int invincibilitySwitchCounter = 20;
@@ -53,7 +54,7 @@ public class Player {
         AffineTransform transform = new AffineTransform();
         transform.translate(x - monk[monkFrame].getWidth()/2.0, y - monk[monkFrame].getHeight()/2.0);
         constrain();
-        double angle = Math.atan2(yVelocity, xVelocity);
+        angle = Math.atan2(yVelocity, xVelocity);
         if(angle < 0)
             angle += 2 * Math.PI;
         transform.rotate(angle + Math.PI/2, monk[monkFrame].getWidth()/2, monk[monkFrame].getHeight()/2);
@@ -62,8 +63,20 @@ public class Player {
                 monkFrame = 0;
             g2d.drawImage(monk[monkFrame], transform, null);
         }
+//        drawMonkPixels(g2d);
         g2d.dispose();
     }
+    
+//    private void drawMonkPixels(Graphics2D g2d) {
+//        for(int j = 0; j < 60; j++) {
+//            for(int k = 0; k < 60; k++) {
+//                if(monkPixels[monkFrame][j][k] != 0) {
+//                    Point2D p2d = new Point2D.Double(x - monk[monkFrame].getWidth()/2.0 + k, y - monk[monkFrame].getHeight()/2.0 + j);
+//                    g2d.draw(new Rectangle2D.Double(p2d.getX(), p2d.getY(), 1, 1));
+//                }
+//            }
+//        }
+//    }
     
     private void changeVelocity() {
         if(left)
