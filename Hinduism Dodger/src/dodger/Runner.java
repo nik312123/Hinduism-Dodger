@@ -2,6 +2,8 @@ package dodger;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -14,11 +16,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
@@ -48,8 +53,9 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static boolean isBeginning = true;
     private static boolean musicMuted = false;
     private static boolean sfxMuted = false;
+    private static boolean creditsOpen = false;
     public static boolean isFirstTime = true;
-        
+            
     private static Player p;
     
     private static Sound menu;
@@ -70,7 +76,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static GradientButton musicButton;
     private static GradientButton sfxButton;
     
+    private static PopUp popUp;
+    
     private static ArrayList<BadKarma> impurities;
+    
+    private static JPanel[] clickableNames = new JPanel[6];
         
     public static JFrame mainFrame;
     
@@ -98,6 +108,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage instructions;
     private static BufferedImage menuScreen;
     private static BufferedImage moksha;
+    private static BufferedImage creditText;
     public static BufferedImage[] badKarma = new BufferedImage[9];
     public static BufferedImage[] pulse = new BufferedImage[29];
     
@@ -123,6 +134,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             instructions = ImageIO.read(Runner.class.getResource("/images/startScreenButtons/instructions.png"));
             menuScreen = ImageIO.read(Runner.class.getResource("/images/menuScreen.png"));
             moksha = ImageIO.read(Runner.class.getResource("/images/moksha.png"));
+            creditText = ImageIO.read(Runner.class.getResource("/images/creditText.png"));
             menu = new Sound(Runner.class.getResource("/audio/menu.wav"), true);
             main = new Sound(Runner.class.getResource("/audio/main.wav"), true);
             gameOver = new Sound(Runner.class.getResource("/audio/gameOver.wav"), true);
@@ -139,6 +151,82 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         
         p = new Player();
         BadKarma.p = p;
+        
+        popUp = new PopUp(30, 30, mainFrame.getWidth() - 60, mainFrame.getHeight() - 60, 100, new Color(50, 50, 50), new Color(150, 150, 150));
+        
+        for(int i = 0, y = 50; i < clickableNames.length; ++i, y += 50) {
+            clickableNames[i] = new JPanel();
+            JPanel b = clickableNames[i];
+            b.setLocation((int) (50 - popUp.getExpandedX()), (int) (y - popUp.getExpandedY()));
+            b.setVisible(true);
+            b.setOpaque(false);
+            b.setName(Integer.toString(i));
+            b.addMouseListener(new MouseListener() {
+
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    String Url = "";
+                    String name = ((JPanel)e.getSource()).getName();
+                    int nameInt = Integer.parseInt(name);
+                    name = null;
+                    switch(nameInt) {
+                        case 0:
+                            Url = "http://soundimage.org/";
+                            break;
+                        case 1:
+                            Url = "https://opengameart.org/users/cynicmusic";
+                            break;
+                        case 2:
+                            Url = "https://opengameart.org/users/qubodup";
+                            break;
+                        case 3:
+                            Url = "http://soundbible.com/";
+                            break;
+                        case 4:
+                            Url = "https://www.soundjay.com/";
+                            break;
+                        case 5:
+                            Url = "http://www.freesfx.co.uk/";
+                            break;
+                    }
+                    try {
+                        Desktop.getDesktop().browse(new URI(Url));
+                    }
+                    catch(IOException | URISyntaxException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void mousePressed(MouseEvent e) {}
+
+                @Override
+                public void mouseReleased(MouseEvent e) {}
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if(b.isVisible()) {
+                        mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        popUp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    }
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    popUp.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    b.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
+                
+            });
+        }
+        clickableNames[0].setSize(69, 10);
+        clickableNames[1].setSize(260, 10);
+        clickableNames[2].setSize(162, 10);
+        clickableNames[3].setSize(73, 10);
+        clickableNames[4].setSize(58, 10);
+        clickableNames[5].setSize(47, 10);
         
         resetButton = new GradientButton(reset, new Color(0, 191, 255), Color.GREEN, new RoundRectangle2D.Double(0, 0, 350, 100, 75, 75), 100, (mainFrame.getWidth() - 350)/2, 450, 350, 100) {
             private static final long serialVersionUID = 1L;
@@ -331,9 +419,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                isBeginning = false;
-                buttonClick.play();
-                impuritySpawner.start();
+                if(isVisible() && !popUp.getExpanding()) {
+                    isBeginning = false;
+                    buttonClick.play();
+                    impuritySpawner.start();
+                }
             }
 
             @Override
@@ -344,7 +434,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
 
@@ -363,7 +453,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonClick.play();
             }
 
@@ -375,7 +465,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
 
@@ -394,8 +484,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding()) {
+                    popUp.setExpanding(true);
+                    creditsOpen = true;
                     buttonClick.play();
+                }
             }
 
             @Override
@@ -406,7 +499,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
 
@@ -425,7 +518,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonClick.play();
             }
 
@@ -437,7 +530,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
 
@@ -456,7 +549,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonClick.play();
             }
 
@@ -468,7 +561,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                if(isVisible())
+                if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
 
@@ -492,6 +585,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         creditsButton.setVisible(true);
         storyButton.setVisible(true);
         instructionsButton.setVisible(true);
+        popUp.setVisible(true);
         
         mainFrame.add(r);
         mainFrame.add(resetButton);
@@ -504,6 +598,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         mainFrame.add(creditsButton);
         mainFrame.add(storyButton);
         mainFrame.add(instructionsButton);
+        mainFrame.add(popUp);
+        popUp.setLayout(null);
+        for(JPanel b : clickableNames)
+            popUp.add(b);
         
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.addKeyListener(r);
@@ -511,7 +609,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         mainFrame.setLocation(dim.width / 2 - mainFrame.getWidth() / 2, dim.height / 2 - mainFrame.getHeight() / 2);
         mainFrame.setLayout(null);
         mainFrame.setUndecorated(true);
-        mainFrame.setVisible(true);
         
         drawTimer = new Timer(5, r);
         drawTimer.start();
@@ -524,11 +621,16 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         invincibilityTimer.setRepeats(false);
         
         drawingDone = new CountDownLatch(1);
+                
         menu.play();
+                
+        mainFrame.setVisible(true);
+        mainFrame.requestFocus();
     }
     
     @Override
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         if(!resetting) {
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -541,12 +643,30 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 mokshaY = 10 * Math.sin(mokshaTheta);
                 if(mokshaTheta >= 2 * Math.PI - Math.PI/3600)
                     mokshaTheta = 0;
+                if(popUp.getExpanding()) {
+                    normalButton.setVisible(false);
+                    powerUpButton.setVisible(false);
+                    creditsButton.setVisible(false);
+                    storyButton.setVisible(false);
+                    instructionsButton.setVisible(false);
+                }
+                else {
+                    normalButton.setVisible(true);
+                    powerUpButton.setVisible(true);
+                    creditsButton.setVisible(true);
+                    storyButton.setVisible(true);
+                    instructionsButton.setVisible(true);
+                }
                 normalButton.draw(g2d);
                 powerUpButton.draw(g2d);
                 creditsButton.draw(g2d);
                 storyButton.draw(g2d);
                 instructionsButton.draw(g2d);
                 drawNames(g2d);
+                popUp.draw(g2d);
+                if(creditsOpen && !popUp.getExpanding())
+                    creditsOpen = false;
+                drawCredits(g2d);
             }
             else if(p.getHealthBar().getPercentage() != 0) {
                 normalButton.setVisible(false);
@@ -590,13 +710,18 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private void drawNames(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.setFont(scoreFont.deriveFont(28f));
-        g2d.drawString("Made by Nikunj Chawla", nameStringX, 575);
+        g2d.drawString("Made by Nikunj Chawla", nameStringX, 595);
         if(++nameStringCounter % 4 == 0) {
             --nameStringX;
             nameStringCounter = 0;
             if(nameStringX == -260)
                 nameStringX = 610;
         }
+    }
+    
+    private void drawCredits(Graphics2D g2d) {
+        if(popUp.percentageExpanded() == 1.0)
+            g2d.drawImage(creditText, (mainFrame.getWidth() - creditText.getWidth())/2, (mainFrame.getHeight() - creditText.getHeight())/2, null);
     }
     
     private void drawAndModifyImpurities(Graphics2D g2d) {
@@ -742,6 +867,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 storyButton = null;
                 instructionsButton = null;
                 isBeginning = true;
+                isFirstTime = false;
                 System.gc();
                 resetting = false;
                 try {
