@@ -75,6 +75,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Sound hit;
     private static Sound buttonHover;
     private static Sound buttonClick;
+    private static Sound heal;
+    private static Sound punchPower;
     
     private static GradientButton resetButton;
     private static GradientButton closeButton;
@@ -168,6 +170,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             hit = new Sound(Runner.class.getResource("/audio/hit.wav"), false);
             buttonHover = new Sound(Runner.class.getResource("/audio/buttonHover.wav"), false);
             buttonClick = new Sound(Runner.class.getResource("/audio/buttonClick.wav"), false);
+            heal = new Sound(Runner.class.getResource("/audio/heal.wav"), false);
+            punchPower = new Sound(Runner.class.getResource("/audio/punchPower.wav"), false);
         }
         
         Runner r = new Runner();
@@ -810,7 +814,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             else if(!injured && p.touchingImpurity(bk.getRect())) {
                 impurities.remove(i);
                 --i;
-                if(!p.isPunching()) {
+                if(!p.getHurting()) {
                     injured = true;
                     p.damage();
                 }
@@ -854,6 +858,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         HealthBar hb = p.getHealthBar();
                         if(hb.getPercentage() < 1.0)
                             hb.damage(Math.max(-0.10, hb.getPercentage() - 1.0));
+                        heal.play();
                         powerUpTimer.start();
                         break;
                     case 2:
@@ -864,12 +869,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                                     p.setPunching(true);
                                     Thread.sleep(10000);
                                     p.setPunching(false);
+                                    Thread.sleep(1000);
+                                    p.setHurting();
                                     powerUpTimer.start();
                                 }
                                 catch(InterruptedException e) {}
                             }
                         };
                         deactivatePunching.start();
+                        punchPower.play();
                         break;
                 }
                 currentPowerUp = null;
