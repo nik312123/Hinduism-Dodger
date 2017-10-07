@@ -200,7 +200,7 @@ public class Player {
         int[][] rotatedGrid = rotatedGrid();
         for(int i = 0; i < 60; i++) {
             for(int j = 0; j < 60; j++) {
-                if(rotatedGrid[i][j] != 0 && powerUpCircle.contains(new Point2D.Double(x - 60 + j, y - 60/2.0 + i))) {
+                if(rotatedGrid[i][j] != 0 && powerUpCircle.contains(new Point2D.Double(x - 60/2.0 + j, y - 60/2.0 + i))) {
                     return true;
                 }
             }
