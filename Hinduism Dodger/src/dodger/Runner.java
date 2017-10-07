@@ -1,7 +1,9 @@
 package dodger;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -18,13 +20,16 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
 import javax.imageio.ImageIO;
@@ -54,9 +59,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static boolean musicMuted = false;
     private static boolean sfxMuted = false;
     private static boolean creditsOpen = false;
+    private static boolean storyOpen = false;
+    private static boolean omActivated = false;
     public static boolean isFirstTime = true;
-            
+    
     private static Player p;
+    
+    private static final String[] storyStrings = {"Sai is on a trip. Although, the trip he is trying to take is not necessarily just physically. Sai wants to achieve moksha or liberation from the samsara, the cycle of death and rebirth. Join Sai in his path to moksha by helping him not accumulate bad karma, or it will be the end of his journey."};
+    
+    private static Ellipse2D omEllipse = new Ellipse2D.Double(0, 0, 0, 0);
     
     private static Sound menu;
     private static Sound main;
@@ -80,6 +91,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     private static ArrayList<BadKarma> impurities;
     
+    private static PowerUp currentPowerUp;
+    
     private static JPanel[] clickableNames = new JPanel[6];
         
     public static JFrame mainFrame;
@@ -87,8 +100,12 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Timer invincibilityTimer;
     private static Timer impuritySpawner;
     private static Timer drawTimer;
+    private static Timer powerUpTimer;
     
     private static CountDownLatch drawingDone;
+    
+    private static Thread deactivateOm;
+    private static Thread deactivatePunching;
     
     private static Font hpFont;
     private static Font scoreFont;
@@ -109,8 +126,13 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage menuScreen;
     private static BufferedImage moksha;
     private static BufferedImage creditText;
+    private static BufferedImage grassTile;
+    public static BufferedImage shadow;
+    public static BufferedImage[] powerUps = new BufferedImage[3];
     public static BufferedImage[] badKarma = new BufferedImage[9];
     public static BufferedImage[] pulse = new BufferedImage[29];
+    
+    private static Random rand = new Random();
     
     public static void main(String... args) throws FontFormatException, IOException, UnsupportedAudioFileException {
         impurities = new ArrayList<BadKarma>();
@@ -135,6 +157,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             menuScreen = ImageIO.read(Runner.class.getResource("/images/menuScreen.png"));
             moksha = ImageIO.read(Runner.class.getResource("/images/moksha.png"));
             creditText = ImageIO.read(Runner.class.getResource("/images/creditText.png"));
+            powerUps[0] = ImageIO.read(Runner.class.getResource("/images/powerUp/om.png"));
+            powerUps[1] = ImageIO.read(Runner.class.getResource("/images/powerUp/health.png"));
+            powerUps[2] = ImageIO.read(Runner.class.getResource("/images/powerUp/punch.png"));
+            grassTile = ImageIO.read(Runner.class.getResource("/images/grassTile.png"));
+            shadow = ImageIO.read(Runner.class.getResource("/images/shadow.png"));
             menu = new Sound(Runner.class.getResource("/audio/menu.wav"), true);
             main = new Sound(Runner.class.getResource("/audio/main.wav"), true);
             gameOver = new Sound(Runner.class.getResource("/audio/gameOver.wav"), true);
@@ -165,32 +192,32 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    String Url = "";
-                    String name = ((JPanel)e.getSource()).getName();
+                    String url = "";
+                    String name = ((JPanel) e.getSource()).getName();
                     int nameInt = Integer.parseInt(name);
                     name = null;
                     switch(nameInt) {
                         case 0:
-                            Url = "http://soundimage.org/";
+                            url = "http://soundimage.org/";
                             break;
                         case 1:
-                            Url = "https://opengameart.org/users/cynicmusic";
+                            url = "https://opengameart.org/users/cynicmusic";
                             break;
                         case 2:
-                            Url = "https://opengameart.org/users/qubodup";
+                            url = "https://opengameart.org/users/qubodup";
                             break;
                         case 3:
-                            Url = "http://soundbible.com/";
+                            url = "http://soundbible.com/";
                             break;
                         case 4:
-                            Url = "https://www.soundjay.com/";
+                            url = "https://www.soundjay.com/";
                             break;
                         case 5:
-                            Url = "http://www.freesfx.co.uk/";
+                            url = "http://www.freesfx.co.uk/";
                             break;
                     }
                     try {
-                        Desktop.getDesktop().browse(new URI(Url));
+                        Desktop.getDesktop().browse(new URI(url));
                     }
                     catch(IOException | URISyntaxException e1) {
                         e1.printStackTrace();
@@ -211,7 +238,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     }
                 }
-
+                
                 @Override
                 public void mouseExited(MouseEvent e) {
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -230,7 +257,9 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         
         resetButton = new GradientButton(reset, new Color(0, 191, 255), Color.GREEN, new RoundRectangle2D.Double(0, 0, 350, 100, 75, 75), 100, (mainFrame.getWidth() - 350)/2, 450, 350, 100) {
             private static final long serialVersionUID = 1L;
-
+            
+            private boolean enteredShape = false;
+            
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(isVisible()) {
@@ -238,27 +267,34 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     reset();
                 }
             }
-
+            
             @Override
             public void mousePressed(MouseEvent e) {}
-
+            
             @Override
             public void mouseReleased(MouseEvent e) {}
-
+            
             @Override
-            public void mouseEntered(MouseEvent e) {
-                if(isVisible())
-                    buttonHover.play();
-            }
-
+            public void mouseEntered(MouseEvent e) {}
+            
             @Override
             public void mouseExited(MouseEvent e) {}
-
+            
             @Override
             public void mouseDragged(MouseEvent e) {}
-
+            
             @Override
             public void mouseMoved(MouseEvent e) {}
+            
+            @Override
+            public void beforeDraw(Graphics g) {
+                if(!enteredShape && onButton()) {
+                    buttonHover.play();
+                    enteredShape = true;
+                }
+                else if(enteredShape && !onButton())
+                    enteredShape = false;
+            }
             
         };
         closeButton = new GradientButton(close, new Color(105, 105, 105), Color.RED, 40, 2, 2, 24, 24) {
@@ -454,7 +490,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
+                    isBeginning = false;
                     buttonClick.play();
+                    impuritySpawner.start();
+                    powerUpTimer.start();
             }
 
             @Override
@@ -518,8 +557,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible() && !popUp.getExpanding())
+                if(isVisible() && !popUp.getExpanding()) {
+                    popUp.setExpanding(true);
+                    storyOpen = true;
                     buttonClick.play();
+                }
             }
 
             @Override
@@ -620,6 +662,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         invincibilityTimer.setActionCommand("invincible");
         invincibilityTimer.setRepeats(false);
         
+        powerUpTimer = new Timer(20000, r);
+        powerUpTimer.setActionCommand("power");
+        powerUpTimer.setRepeats(false);
+        
         drawingDone = new CountDownLatch(1);
                 
         menu.play();
@@ -650,7 +696,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     storyButton.setVisible(false);
                     instructionsButton.setVisible(false);
                 }
-                else {
+                else if(popUp.getWidth() == 0){
                     normalButton.setVisible(true);
                     powerUpButton.setVisible(true);
                     creditsButton.setVisible(true);
@@ -666,9 +712,21 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 popUp.draw(g2d);
                 if(creditsOpen && !popUp.getExpanding())
                     creditsOpen = false;
+                if(storyOpen && !popUp.getExpanding())
+                    storyOpen = false;
                 drawCredits(g2d);
+                drawStory(g2d);
             }
             else if(p.getHealthBar().getPercentage() != 0) {
+                int grassX = 0, grassY = 0;
+                for(int i = 0; i < 9; ++i) {
+                    for(int j = 0; j < 9; ++j) {
+                        g2d.drawImage(grassTile, grassX, grassY, null);
+                        grassX += 70;
+                    }
+                    grassY += 70;
+                    grassX = 0;
+                }
                 normalButton.setVisible(false);
                 powerUpButton.setVisible(false);
                 creditsButton.setVisible(false);
@@ -678,15 +736,20 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     menu.stop();
                     main.play();
                 }
+                drawAndModifyPowerUp(g2d);
                 p.draw(g2d);
                 drawAndModifyImpurities(g2d);
+                moveAndDrawOm(g2d);
                 drawTopBar(g2d);
                 if(++scoreCounter % 100 == 0) {
                     score += 10;
                     scoreCounter = 0;
                 }
                 if(++impuritySpawnerCounter % 1500 == 0 && impuritySpawner.getDelay() > 200) {
-                    impuritySpawner.setDelay(impuritySpawner.getDelay() - 50);
+                    if(!omActivated)
+                        impuritySpawner.setDelay(impuritySpawner.getDelay() - 50);
+                    else
+                        impuritySpawner.setDelay(impuritySpawner.getDelay() - 200);
                     impuritySpawnerCounter = 0;
                 }
             }
@@ -720,27 +783,111 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawCredits(Graphics2D g2d) {
-        if(popUp.percentageExpanded() == 1.0)
+        if(creditsOpen && popUp.percentageExpanded() == 1.0)
             g2d.drawImage(creditText, (mainFrame.getWidth() - creditText.getWidth())/2, (mainFrame.getHeight() - creditText.getHeight())/2, null);
+    }
+    
+    private void drawStory(Graphics2D g2d) {
+        if(storyOpen && popUp.percentageExpanded() == 1.0) {
+            try {
+                g2d.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("/Users/90301551/Desktop/LucidaGrande.ttf")).deriveFont(13f));
+            }
+            catch(FontFormatException | IOException e) {
+                e.printStackTrace();
+            }
+            g2d.drawString(storyStrings[0], 45, 50);
+        }
     }
     
     private void drawAndModifyImpurities(Graphics2D g2d) {
         for(int i = 0; i < impurities.size(); ++i) {
             BadKarma bk = impurities.get(i);
+            bk.draw(g2d);
             if(bk.isOutOfBounds()) {
                 impurities.remove(i);
                 --i;
             }
             else if(!injured && p.touchingImpurity(bk.getRect())) {
-                injured = true;
                 impurities.remove(i);
                 --i;
-                p.damage();
+                if(!p.isPunching()) {
+                    injured = true;
+                    p.damage();
+                }
                 hit.play();
                 invincibilityTimer.start();
             }
-            else
-                bk.draw(g2d);
+        }
+    }
+    
+    private void drawAndModifyPowerUp(Graphics2D g2d) {
+        if(currentPowerUp != null) {
+            currentPowerUp.draw(g2d);
+            if(currentPowerUp.isOutOfBounds()) {
+                currentPowerUp = null;
+                powerUpTimer.start();
+            }
+            else if(p.touchingPowerUp(currentPowerUp.getCircle())) {
+                switch(currentPowerUp.getPowerUp()) {
+                    case 0:
+                        omActivated = true;
+                        impuritySpawner.setDelay(impuritySpawner.getDelay() * 4);
+                        for(BadKarma b : impurities)
+                            b.slowSpeed();
+                        deactivateOm = new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    Thread.sleep(10000);
+                                    omActivated = false;
+                                    impuritySpawner.setDelay(impuritySpawner.getDelay()/4);
+                                    for(BadKarma b : impurities)
+                                        b.increaseSpeed();
+                                    powerUpTimer.start();
+                                }
+                                catch(InterruptedException e) {}
+                            }
+                        };
+                        deactivateOm.start();
+                        break;
+                    case 1:
+                        HealthBar hb = p.getHealthBar();
+                        if(hb.getPercentage() < 1.0)
+                            hb.damage(Math.max(-0.10, hb.getPercentage() - 1.0));
+                        powerUpTimer.start();
+                        break;
+                    case 2:
+                        deactivatePunching = new Thread() {
+                            @Override
+                            public void run() {
+                                try {
+                                    p.setPunching(true);
+                                    Thread.sleep(10000);
+                                    p.setPunching(false);
+                                    powerUpTimer.start();
+                                }
+                                catch(InterruptedException e) {}
+                            }
+                        };
+                        deactivatePunching.start();
+                        break;
+                }
+                currentPowerUp = null;
+            }
+        }
+    }
+    
+    private void moveAndDrawOm(Graphics2D g2d) {
+        if(!omActivated)
+            omEllipse = new Ellipse2D.Double(p.getX(), p.getY(), 0, 0);
+        else {
+            if(omEllipse.getWidth() != 1715)
+                omEllipse = new Ellipse2D.Double(omEllipse.getX() - 2.5, omEllipse.getY() - 2.5, omEllipse.getWidth() + 5, omEllipse.getHeight() + 5);
+            g2d.setColor(Color.BLUE);
+            Composite comp = g2d.getComposite();
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((1715 - omEllipse.getWidth())/1715.0 * 0.75 + 0.25)));
+            g2d.fill(omEllipse);
+            g2d.setComposite(comp);
         }
     }
     
@@ -756,6 +903,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawGameOver(Graphics2D g2d) {
+        if(deactivateOm != null && !deactivateOm.isInterrupted())
+            deactivateOm.interrupt();
+        if(deactivatePunching != null && !deactivatePunching.isInterrupted())
+            deactivatePunching.interrupt();
         g2d.setColor(new Color(96, 96, 96));
         g2d.fillRect(0, 0, mainFrame.getWidth(), mainFrame.getHeight());
         g2d.setFont(hpFont.deriveFont(124.0f));
@@ -767,6 +918,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         g2d.drawString(scoreString, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(scoreString))/2, 400);
         resetButton.draw(g2d);
         resetButton.setVisible(true);
+    }
+    
+    public static double randomDouble(double min, double max) {
+        return min + (max - min) * rand.nextDouble();
     }
     
     @Override
@@ -818,10 +973,17 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e == null || e.getActionCommand() == null || (!e.getActionCommand().equals("spawn") && !e.getActionCommand().equals("invincible")))
+        if(e == null || e.getActionCommand() == null || (!e.getActionCommand().equals("spawn") && !e.getActionCommand().equals("invincible") && !e.getActionCommand().equals("power")))
             repaint();
-        else if(e.getActionCommand().equals("spawn"))
-            impurities.add(new BadKarma());
+        else if(e.getActionCommand().equals("spawn")) {
+            BadKarma bk = new BadKarma();
+            impurities.add(bk);
+            if(omActivated)
+                bk.slowSpeed();
+        }
+        else if(e.getActionCommand().equals("power")) {
+            currentPowerUp = new PowerUp();
+        }
         else
             injured = false;
     }
@@ -851,11 +1013,20 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 score = 0;
                 scoreCounter = 0;
                 impuritySpawnerCounter = 0;
+                nameStringX = 610;
+                nameStringCounter = 0;
+                mokshaY = 0;
+                mokshaTheta = 0;
                 injured = false;
+                isBeginning = true;
+                isFirstTime = false;
+                creditsOpen = false;
+                omActivated = false;
                 p = null;
                 BadKarma.p = null;
                 mainFrame.dispose();
                 mainFrame = null;
+                currentPowerUp = null;
                 drawingDone = null;
                 impurities = null;
                 resetButton = null;
@@ -866,8 +1037,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 creditsButton = null;
                 storyButton = null;
                 instructionsButton = null;
-                isBeginning = true;
-                isFirstTime = false;
                 System.gc();
                 resetting = false;
                 try {
