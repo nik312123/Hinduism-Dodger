@@ -23,7 +23,7 @@ public class BadKarma {
     
     private Rectangle2D impurityTemp = new Rectangle2D.Double();
     
-    private static Random rand = new Random();
+    private Random rand = new Random();
     
     public BadKarma() {
         int side = rand.nextInt(4);
