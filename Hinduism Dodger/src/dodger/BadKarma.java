@@ -54,7 +54,7 @@ public class BadKarma {
         double angle = Math.atan2(deltaY, deltaX);
         if(angle < 0)
             angle += 2 * Math.PI;
-        angle += randomDouble(-Math.PI/18, Math.PI/18);
+        angle += Runner.randomDouble(-Math.PI/18, Math.PI/18);
         xVelocity = Math.cos(angle)/2;
         yVelocity = Math.sin(angle)/2;
     }
@@ -96,10 +96,6 @@ public class BadKarma {
         return impurityTemp;
     }
     
-    public double randomDouble(double min, double max) {
-        return min + (max - min) * rand.nextDouble();
-    }
-    
     public boolean isOutOfBounds() {
         switch(startingSide) {
             case 0:
@@ -112,6 +108,16 @@ public class BadKarma {
                 return x >= Runner.mainFrame.getWidth() || x <= -20 || y <= 0;
         }
         return false;
+    }
+    
+    public void slowSpeed() {
+        xVelocity /= 4;
+        yVelocity /= 4;
+    }
+    
+    public void increaseSpeed() {
+        xVelocity *= 4;
+        yVelocity *= 4;
     }
     
 }
