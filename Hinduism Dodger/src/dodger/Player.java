@@ -27,6 +27,7 @@ public class Player {
     private static int monkPixels[][][] = new int[8][60][60];
     
     private boolean isPunching = false;
+    private boolean shouldHurt = false;
     private boolean left = false, right = false, up = false, down = false;
     private boolean isVisible = true;
     
@@ -237,10 +238,20 @@ public class Player {
     
     public void setPunching(boolean punching) {
         isPunching = punching;
+        if(punching)
+            shouldHurt = true;
+    }
+    
+    public void setHurting() {
+        shouldHurt = false;
     }
     
     public boolean isPunching() {
         return isPunching;
+    }
+    
+    public boolean getHurting() {
+        return shouldHurt;
     }
     
 }

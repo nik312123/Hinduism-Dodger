@@ -94,12 +94,13 @@ public class PowerUp {
         g2d.fill(trans.createTransformedShape(GLOW));
         g2d.setComposite(original);
         trans.translate(-((double) powerUpImage.getWidth()/2 - 25), -((double) powerUpImage.getWidth()/2 - 25));
+        g2d.setColor(Color.BLACK);
         g2d.drawImage(powerUpImage, trans, null);
         move();
     }
     
     public Ellipse2D getCircle() {
-        return new Ellipse2D.Double(x + (double) powerUpImage.getWidth()/2 - 25, y + (double) powerUpImage.getHeight()/2 - 25, GLOW.getWidth(), GLOW.getHeight());
+        return new Ellipse2D.Double(x, y, 30, 30);
     }
     
     public boolean isOutOfBounds() {
