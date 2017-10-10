@@ -50,6 +50,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static int nameStringCounter = 0;
     private static int taglineCounter = 0;
     private static int taglineFrame = 0;
+    private static int alwaysOnTop = 50;
     
     private static double mokshaY = 0;
     private static double mokshaTheta = 0;
@@ -132,6 +133,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage moksha;
     private static BufferedImage creditText;
     private static BufferedImage grassTile;
+    private static BufferedImage instructionsText;
     public static BufferedImage shadow;
     
     private static BufferedImage[] tagline = new BufferedImage[21];
@@ -171,6 +173,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             powerUps[2] = ImageIO.read(Runner.class.getResource("/images/powerUp/punch.png"));
             grassTile = ImageIO.read(Runner.class.getResource("/images/grassTile.png"));
             shadow = ImageIO.read(Runner.class.getResource("/images/shadow.png"));
+            instructionsText = ImageIO.read(Runner.class.getResource("/images/instructionsText.png"));
             menu = new Sound(Runner.class.getResource("/audio/menu.wav"), true);
             main = new Sound(Runner.class.getResource("/audio/main.wav"), true);
             gameOver = new Sound(Runner.class.getResource("/audio/gameOver.wav"), true);
@@ -205,7 +208,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             clickableNames[i] = new JPanel();
             JPanel b = clickableNames[i];
             b.setLocation((int) (50 - popUp.getExpandedX()), (int) (y - popUp.getExpandedY()));
-            b.setVisible(true);
             b.setOpaque(false);
             b.setName(Integer.toString(i));
             b.addMouseListener(new MouseListener() {
@@ -686,6 +688,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         mainFrame.setLocation(dim.width / 2 - mainFrame.getWidth() / 2, dim.height / 2 - mainFrame.getHeight() / 2);
         mainFrame.setLayout(null);
         mainFrame.setUndecorated(true);
+        mainFrame.setAlwaysOnTop(true);
         
         drawTimer = new Timer(5, r);
         drawTimer.start();
@@ -713,6 +716,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if(!resetting) {
+            if(alwaysOnTop != 0)
+                --alwaysOnTop;
+            else
+                mainFrame.setAlwaysOnTop(false);
             Graphics2D g2d = (Graphics2D) g.create();
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             if(isBeginning) {
@@ -760,6 +767,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 drawCredits(g2d);
                 drawStory(g2d);
                 drawInstructions(g2d);
+                if(popUp.percentageExpanded() == 1.0) {
+                    g2d.setFont(scoreFont.deriveFont(20f));
+                    g2d.drawString("Click on pop-up to close.", 300 - g2d.getFontMetrics().stringWidth("Click on pop-up to close.")/2, 575);
+                }
             }
             else if(p.getHealthBar().getPercentage() != 0) {
                 int grassX = 0, grassY = 0;
@@ -827,8 +838,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawCredits(Graphics2D g2d) {
-        if(creditsOpen && popUp.percentageExpanded() == 1.0)
+        if(creditsOpen && popUp.percentageExpanded() == 1.0) {
             g2d.drawImage(creditText, popUp.getX(), popUp.getY(), null);
+            for(JPanel b : clickableNames)
+                b.setVisible(true);
+        }
+        else {
+            for(JPanel b : clickableNames)
+                b.setVisible(false);
+        }
     }
     
     private void drawStory(Graphics2D g2d) {
@@ -842,10 +860,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawInstructions(Graphics2D g2d) {
-        if(instructionsOpen && popUp.percentageExpanded() == 1.0) {
-            g2d.setFont(scoreFont.deriveFont(20f));
-            g2d.drawString("Test", 60, 60);
-        }
+        if(instructionsOpen && popUp.percentageExpanded() == 1.0)
+            g2d.drawImage(instructionsText, 30, 30, null);
     }
     
     private void drawAndModifyImpurities(Graphics2D g2d) {
@@ -1071,6 +1087,9 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 impuritySpawnerCounter = 0;
                 nameStringX = 610;
                 nameStringCounter = 0;
+                taglineFrame = 0;
+                taglineCounter = 0;
+                alwaysOnTop = 50;
                 mokshaY = 0;
                 mokshaTheta = 0;
                 injured = false;
@@ -1080,13 +1099,19 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 storyOpen = false;
                 instructionsOpen = false;
                 omActivated = false;
+                popUp = null;
                 p = null;
+                for(int i = 0; i < clickableNames.length; ++i)
+                    clickableNames[i] = null;
+                clickableNames = new JPanel[9];
                 BadKarma.p = null;
                 mainFrame.dispose();
                 mainFrame = null;
                 currentPowerUp = null;
                 drawingDone = null;
                 impurities = null;
+                deactivateOm = null;
+                deactivatePunching = null;
                 resetButton = null;
                 closeButton = null;
                 draggableButton = null;
@@ -1095,6 +1120,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 creditsButton = null;
                 storyButton = null;
                 instructionsButton = null;
+                musicButton = null;
+                sfxButton = null;
                 System.gc();
                 resetting = false;
                 try {
