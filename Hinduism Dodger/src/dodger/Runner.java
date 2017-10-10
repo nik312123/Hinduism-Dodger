@@ -760,10 +760,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 drawCredits(g2d);
                 drawStory(g2d);
                 drawInstructions(g2d);
-                if(popUp.percentageExpanded() == 1.0) {
-                    g2d.setFont(scoreFont.deriveFont(16f));
-                    g2d.drawString("Click the pop-up to close it.", 300 - g2d.getFontMetrics().stringWidth("Click the pop-up to close it.")/2, 573);
-                }
             }
             else if(p.getHealthBar().getPercentage() != 0) {
                 int grassX = 0, grassY = 0;
@@ -831,9 +827,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     }
     
     private void drawCredits(Graphics2D g2d) {
-        if(creditsOpen && popUp.percentageExpanded() == 1.0) {
+        if(creditsOpen && popUp.percentageExpanded() == 1.0)
             g2d.drawImage(creditText, popUp.getX(), popUp.getY(), null);
-        }
     }
     
     private void drawStory(Graphics2D g2d) {
