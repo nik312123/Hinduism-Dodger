@@ -24,7 +24,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -49,6 +48,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static int impuritySpawnerCounter = 0;
     private static int nameStringX = 610;
     private static int nameStringCounter = 0;
+    private static int taglineCounter = 0;
+    private static int taglineFrame = 0;
     
     private static double mokshaY = 0;
     private static double mokshaTheta = 0;
@@ -60,12 +61,13 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static boolean sfxMuted = false;
     private static boolean creditsOpen = false;
     private static boolean storyOpen = false;
+    private static boolean instructionsOpen = false;
     private static boolean omActivated = false;
     public static boolean isFirstTime = true;
     
     private static Player p;
     
-    private static final String[] storyStrings = {"Sai is on a trip. Although, the trip he is trying to take is not necessarily just physically. Sai wants to achieve moksha or liberation from the samsara, the cycle of death and rebirth. Join Sai in his path to moksha by helping him not accumulate bad karma, or it will be the end of his journey."};
+    private static final String[] STORY_STRINGS = {"Sai is on a trip. Although, the trip he is", "trying to take is not necessarily just", "physical. Sai wants to achieve moksha or", "liberation from the samsara, the cycle of", "death and rebirth. Join Sai in his path to", "moksha by helping him not accumulate bad", "karma, or it will be the end of his journey."};
     
     private static Ellipse2D omEllipse = new Ellipse2D.Double(0, 0, 0, 0);
     
@@ -77,6 +79,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Sound buttonClick;
     private static Sound heal;
     private static Sound punchPower;
+    private static Sound omPower;
     
     private static GradientButton resetButton;
     private static GradientButton closeButton;
@@ -95,7 +98,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     private static PowerUp currentPowerUp;
     
-    private static JPanel[] clickableNames = new JPanel[6];
+    private static JPanel[] clickableNames = new JPanel[9];
         
     public static JFrame mainFrame;
     
@@ -130,6 +133,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage creditText;
     private static BufferedImage grassTile;
     public static BufferedImage shadow;
+    
+    private static BufferedImage[] tagline = new BufferedImage[21];
     public static BufferedImage[] powerUps = new BufferedImage[3];
     public static BufferedImage[] badKarma = new BufferedImage[9];
     public static BufferedImage[] pulse = new BufferedImage[29];
@@ -146,6 +151,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 badKarma[i] = ImageIO.read(Runner.class.getResource("/images/karma/karma" + i + ".png"));
             for(int i = 0; i < 29; ++i)
                 pulse[i] = ImageIO.read(Runner.class.getResource("/images/pulse/pulse" + i + ".png"));
+            for(int i = 0; i < 21; ++i)
+                tagline[i] = ImageIO.read(Runner.class.getResource("/images/tagline/tagline" + i + ".png"));
             reset = ImageIO.read(Runner.class.getResource("/images/reset.png"));
             close = ImageIO.read(Runner.class.getResource("/images/topBarButtons/close.png"));
             draggable = ImageIO.read(Runner.class.getResource("/images/topBarButtons/draggable.png"));
@@ -172,6 +179,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             buttonClick = new Sound(Runner.class.getResource("/audio/buttonClick.wav"), false);
             heal = new Sound(Runner.class.getResource("/audio/heal.wav"), false);
             punchPower = new Sound(Runner.class.getResource("/audio/punchPower.wav"), false);
+            omPower = new Sound(Runner.class.getResource("/audio/omPower.wav"), false);
         }
         
         Runner r = new Runner();
@@ -183,7 +191,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         p = new Player();
         BadKarma.p = p;
         
-        popUp = new PopUp(30, 30, mainFrame.getWidth() - 60, mainFrame.getHeight() - 60, 100, new Color(50, 50, 50), new Color(150, 150, 150));
+        popUp = new PopUp(30, 30, mainFrame.getWidth() - 60, mainFrame.getHeight() - 60, 100, new Color(50, 50, 50), new Color(150, 150, 150)) {
+            private static final long serialVersionUID = 1L;
+            
+            @Override
+            public void onClick() {
+                buttonClick.play();
+            }
+            
+        };
         
         for(int i = 0, y = 50; i < clickableNames.length; ++i, y += 50) {
             clickableNames[i] = new JPanel();
@@ -219,6 +235,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         case 5:
                             url = "http://www.freesfx.co.uk/";
                             break;
+                        case 6:
+                            url = "http://undertale.com/";
+                            break;
+                        case 7:
+                            url = "https://www.soundsnap.com/";
+                            break;
+                        case 8:
+                            url = "https://www.audioblocks.com/";
+                            break;
                     }
                     try {
                         Desktop.getDesktop().browse(new URI(url));
@@ -252,12 +277,15 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 
             });
         }
-        clickableNames[0].setSize(69, 10);
-        clickableNames[1].setSize(260, 10);
-        clickableNames[2].setSize(162, 10);
-        clickableNames[3].setSize(73, 10);
-        clickableNames[4].setSize(58, 10);
-        clickableNames[5].setSize(47, 10);
+        clickableNames[0].setSize(73, 13);
+        clickableNames[1].setSize(268, 13);
+        clickableNames[2].setSize(156, 13);
+        clickableNames[3].setSize(72, 13);
+        clickableNames[4].setSize(55, 13);
+        clickableNames[5].setSize(48, 13);
+        clickableNames[6].setSize(51, 13);
+        clickableNames[7].setSize(62, 13);
+        clickableNames[8].setSize(76, 13);
         
         resetButton = new GradientButton(reset, new Color(0, 191, 255), Color.GREEN, new RoundRectangle2D.Double(0, 0, 350, 100, 75, 75), 100, (mainFrame.getWidth() - 350)/2, 450, 350, 100) {
             private static final long serialVersionUID = 1L;
@@ -595,8 +623,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(isVisible() && !popUp.getExpanding())
+                if(isVisible() && !popUp.getExpanding()) {
+                    popUp.setExpanding(true);
+                    instructionsOpen = true;
                     buttonClick.play();
+                }
             }
 
             @Override
@@ -686,6 +717,12 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             if(isBeginning) {
                 g2d.drawImage(menuScreen, 0, 0, null);
+                if(++taglineCounter % 6 == 0) {
+                    if(taglineFrame != 20)
+                        ++taglineFrame;
+                    taglineCounter = 0;
+                }
+                g2d.drawImage(tagline[taglineFrame], 0, 17, null);
                 AffineTransform mokshaTransform = new AffineTransform();
                 mokshaTransform.translate(0, mokshaY);
                 g2d.drawImage(moksha, mokshaTransform, null);
@@ -718,8 +755,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     creditsOpen = false;
                 if(storyOpen && !popUp.getExpanding())
                     storyOpen = false;
+                if(instructionsOpen && !popUp.getExpanding())
+                    instructionsOpen = false;
                 drawCredits(g2d);
                 drawStory(g2d);
+                drawInstructions(g2d);
             }
             else if(p.getHealthBar().getPercentage() != 0) {
                 int grassX = 0, grassY = 0;
@@ -788,18 +828,23 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     
     private void drawCredits(Graphics2D g2d) {
         if(creditsOpen && popUp.percentageExpanded() == 1.0)
-            g2d.drawImage(creditText, (mainFrame.getWidth() - creditText.getWidth())/2, (mainFrame.getHeight() - creditText.getHeight())/2, null);
+            g2d.drawImage(creditText, popUp.getX(), popUp.getY(), null);
     }
     
     private void drawStory(Graphics2D g2d) {
         if(storyOpen && popUp.percentageExpanded() == 1.0) {
-            try {
-                g2d.setFont(Font.createFont(Font.TRUETYPE_FONT, new File("/Users/90301551/Desktop/LucidaGrande.ttf")).deriveFont(13f));
+            g2d.setFont(scoreFont.deriveFont(30f));
+            for(int i = 0, stringY = 65; i < STORY_STRINGS.length; ++i) {
+                g2d.drawString(STORY_STRINGS[i], 45, stringY);
+                stringY += 40;
             }
-            catch(FontFormatException | IOException e) {
-                e.printStackTrace();
-            }
-            g2d.drawString(storyStrings[0], 45, 50);
+        }
+    }
+    
+    private void drawInstructions(Graphics2D g2d) {
+        if(instructionsOpen && popUp.percentageExpanded() == 1.0) {
+            g2d.setFont(scoreFont.deriveFont(20f));
+            g2d.drawString("Test", 60, 60);
         }
     }
     
@@ -853,6 +898,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                             }
                         };
                         deactivateOm.start();
+                        omPower.play();
                         break;
                     case 1:
                         HealthBar hb = p.getHealthBar();
@@ -915,6 +961,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             deactivateOm.interrupt();
         if(deactivatePunching != null && !deactivatePunching.isInterrupted())
             deactivatePunching.interrupt();
+        impuritySpawner.stop();
+        powerUpTimer.stop();
         g2d.setColor(new Color(96, 96, 96));
         g2d.fillRect(0, 0, mainFrame.getWidth(), mainFrame.getHeight());
         g2d.setFont(hpFont.deriveFont(124.0f));
@@ -1029,6 +1077,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 isBeginning = true;
                 isFirstTime = false;
                 creditsOpen = false;
+                storyOpen = false;
+                instructionsOpen = false;
                 omActivated = false;
                 p = null;
                 BadKarma.p = null;

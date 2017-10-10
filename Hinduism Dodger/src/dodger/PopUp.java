@@ -50,7 +50,7 @@ public class PopUp extends JPanel implements MouseListener {
         addMouseListener(this);
     }
     
-    public void draw(Graphics g) {
+    public final void draw(Graphics g) {
         if(isExpanding)
             expansionStage = Math.min(expansionStage + 1, steps);
         else
@@ -68,49 +68,52 @@ public class PopUp extends JPanel implements MouseListener {
         g2d.fill(trans.createTransformedShape(popUp));
     }
     
-    public void setExpanding(boolean expanding) {
+    public final void setExpanding(boolean expanding) {
         isExpanding = expanding;
     }
     
-    public boolean getExpanding() {
+    public final boolean getExpanding() {
         return isExpanding;
     }
     
-    public double percentageExpanded() {
+    public final double percentageExpanded() {
         return (double) expansionStage/steps;
     }
     
-    public double getExpandedX() {
+    public final double getExpandedX() {
         return x;
     }
     
-    public double getExpandedY() {
+    public final double getExpandedY() {
         return y;
     }
     
-    public double getExpandedWidth() {
+    public final double getExpandedWidth() {
         return width;
     }
     
-    public double getExpandedHeight() {
+    public final double getExpandedHeight() {
         return height;
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public final void mouseClicked(MouseEvent e) {
         isExpanding = false;
+        onClick();
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {}
+    public final void mousePressed(MouseEvent e) {}
 
     @Override
-    public void mouseReleased(MouseEvent e) {}
+    public final void mouseReleased(MouseEvent e) {}
 
     @Override
-    public void mouseEntered(MouseEvent e) {}
+    public final void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {}
+    public final void mouseExited(MouseEvent e) {}
+    
+    public void onClick() {}
     
 }
