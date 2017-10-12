@@ -31,7 +31,7 @@ public class PowerUp {
     
     public PowerUp() {
         Random rand = new Random();
-        powerUpType = rand.nextInt(3);
+        powerUpType = 0;
         powerUpImage = Runner.powerUps[powerUpType];
         int side = rand.nextInt(4);
         double angle = 0;

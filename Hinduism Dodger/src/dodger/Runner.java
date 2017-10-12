@@ -51,6 +51,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static int taglineCounter = 0;
     private static int taglineFrame = 0;
     private static int alwaysOnTop = 50;
+    private static int grassCounter = 0;
+    private static int grassFrame = 0;
     
     private static double mokshaY = 0;
     private static double mokshaTheta = 0;
@@ -132,11 +134,12 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage menuScreen;
     private static BufferedImage moksha;
     private static BufferedImage creditText;
-    private static BufferedImage grassTile;
     private static BufferedImage instructionsText;
+    private static BufferedImage sai;
     public static BufferedImage shadow;
     
     private static BufferedImage[] tagline = new BufferedImage[21];
+    private static BufferedImage[] grass = new BufferedImage[6];
     public static BufferedImage[] powerUps = new BufferedImage[3];
     public static BufferedImage[] badKarma = new BufferedImage[9];
     public static BufferedImage[] pulse = new BufferedImage[29];
@@ -171,9 +174,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             powerUps[0] = ImageIO.read(Runner.class.getResource("/images/powerUp/om.png"));
             powerUps[1] = ImageIO.read(Runner.class.getResource("/images/powerUp/health.png"));
             powerUps[2] = ImageIO.read(Runner.class.getResource("/images/powerUp/punch.png"));
-            grassTile = ImageIO.read(Runner.class.getResource("/images/grassTile.png"));
             shadow = ImageIO.read(Runner.class.getResource("/images/shadow.png"));
             instructionsText = ImageIO.read(Runner.class.getResource("/images/instructionsText.png"));
+            sai = ImageIO.read(Runner.class.getResource("/images/sai.png"));
+            for(int i = 0; i < 6; ++i)
+                grass[i] = ImageIO.read(Runner.class.getResource("/images/grass/grassTile" + i + ".png"));
             menu = new Sound(Runner.class.getResource("/audio/menu.wav"), true);
             main = new Sound(Runner.class.getResource("/audio/main.wav"), true);
             gameOver = new Sound(Runner.class.getResource("/audio/gameOver.wav"), true);
@@ -776,7 +781,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 int grassX = 0, grassY = 0;
                 for(int i = 0; i < 9; ++i) {
                     for(int j = 0; j < 9; ++j) {
-                        g2d.drawImage(grassTile, grassX, grassY, null);
+                        g2d.drawImage(grass[grassFrame], grassX, grassY, null);
                         grassX += 70;
                     }
                     grassY += 70;
@@ -799,6 +804,12 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 if(++scoreCounter % 100 == 0) {
                     score += 10;
                     scoreCounter = 0;
+                }
+                if(++grassCounter % 40 == 0) {
+                    ++grassFrame;
+                    if(grassFrame == 6)
+                        grassFrame = 0;
+                    grassCounter = 0;
                 }
                 if(++impuritySpawnerCounter % 1500 == 0 && impuritySpawner.getDelay() > 200) {
                     if(!omActivated)
@@ -856,6 +867,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 g2d.drawString(STORY_STRINGS[i], 45, stringY);
                 stringY += 40;
             }
+            g2d.drawImage(sai, 300 - sai.getWidth()/2, 310, null);
         }
     }
     
@@ -868,6 +880,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         for(int i = 0; i < impurities.size(); ++i) {
             BadKarma bk = impurities.get(i);
             bk.draw(g2d);
+            if(omActivated && omEllipse.contains(bk.getRect()))
+                bk.slowSpeed();
             if(bk.isOutOfBounds()) {
                 impurities.remove(i);
                 --i;
@@ -897,8 +911,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     case 0:
                         omActivated = true;
                         impuritySpawner.setDelay(impuritySpawner.getDelay() * 4);
-                        for(BadKarma b : impurities)
-                            b.slowSpeed();
                         deactivateOm = new Thread() {
                             @Override
                             public void run() {
@@ -1050,8 +1062,6 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         else if(e.getActionCommand().equals("spawn")) {
             BadKarma bk = new BadKarma();
             impurities.add(bk);
-            if(omActivated)
-                bk.slowSpeed();
         }
         else if(e.getActionCommand().equals("power")) {
             currentPowerUp = new PowerUp();
@@ -1090,6 +1100,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 taglineFrame = 0;
                 taglineCounter = 0;
                 alwaysOnTop = 50;
+                grassCounter = 0;
+                grassFrame = 0;
                 mokshaY = 0;
                 mokshaTheta = 0;
                 injured = false;
