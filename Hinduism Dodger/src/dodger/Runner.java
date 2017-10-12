@@ -53,6 +53,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static int alwaysOnTop = 50;
     private static int grassCounter = 0;
     private static int grassFrame = 0;
+    private static int speedMultiplier = 1;
     
     private static double mokshaY = 0;
     private static double mokshaTheta = 0;
@@ -805,7 +806,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     score += 10;
                     scoreCounter = 0;
                 }
-                if(++grassCounter % 40 == 0) {
+                if(++grassCounter % (40 * speedMultiplier) == 0 || grassCounter > 40 * speedMultiplier) {
                     ++grassFrame;
                     if(grassFrame == 6)
                         grassFrame = 0;
@@ -911,6 +912,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     case 0:
                         omActivated = true;
                         impuritySpawner.setDelay(impuritySpawner.getDelay() * 4);
+                        speedMultiplier = 4;
                         deactivateOm = new Thread() {
                             @Override
                             public void run() {
@@ -918,6 +920,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                                     Thread.sleep(10000);
                                     omActivated = false;
                                     impuritySpawner.setDelay(impuritySpawner.getDelay()/4);
+                                    speedMultiplier = 1;
                                     for(BadKarma b : impurities)
                                         b.increaseSpeed();
                                     powerUpTimer.start();
@@ -1102,6 +1105,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 alwaysOnTop = 50;
                 grassCounter = 0;
                 grassFrame = 0;
+                speedMultiplier = 1;
                 mokshaY = 0;
                 mokshaTheta = 0;
                 injured = false;
