@@ -18,6 +18,7 @@ public class BadKarma {
     private int pulseStartCounter = 0;
     
     private boolean pulseStart = false;
+    private boolean isSlow = false;
     
     public static Player p;
     
@@ -111,13 +112,19 @@ public class BadKarma {
     }
     
     public void slowSpeed() {
-        xVelocity /= 4;
-        yVelocity /= 4;
+        if(!isSlow) {
+            xVelocity /= 4;
+            yVelocity /= 4;
+            isSlow = true;
+        }
     }
     
     public void increaseSpeed() {
-        xVelocity *= 4;
-        yVelocity *= 4;
+        if(isSlow) {
+            xVelocity *= 4;
+            yVelocity *= 4;
+            isSlow = false;
+        }
     }
     
 }
