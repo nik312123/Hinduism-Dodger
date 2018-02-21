@@ -30,38 +30,38 @@ import javax.swing.JPanel;
  * Here is an example of how the {@code GradientButtonAlwaysVisible} object can be initialized:
  * <blockquote><pre>
  *     GradientButtonAlwaysVisible gb = new GradientButtonAlwaysVisible(buttonImage, Color.BLACK, Color.WHITE, 0, 0, 20, 20) {
- *
+ * <p>
  *          @Override
  *          public void mouseClicked(MouseEvent e) {
  *              if(onButton()) {
  *                  //Do stuff
  *              }
  *          }
- *
+ * <p>
  *          @Override
  *          public void mousePressed(MouseEvent e) {}
- *
+ * <p>
  *          @Override
  *          public void mouseReleased(MouseEvent e) {}
- *
+ * <p>
  *          @Override
  *          public void mouseEntered(MouseEvent e) {}
- *
+ * <p>
  *          @Override
  *          public void mouseExited(MouseEvent e) {}
- *
+ * <p>
  *          @Override
  *          public void mouseDragged(MouseEvent e) {}
- *
+ * <p>
  *          @Override
  *          public void mouseMoved(MouseEvent e) {}
- *
+ * <p>
  *     };
  * </pre></blockquote>
  * <p>
  * The class {@code GradientButtonAlwaysVisible} includes methods for drawing the button and determining whether on the button
  *
- * @author  Nikunj Chawla
+ * @author Nikunj Chawla
  */
 public abstract class GradientButtonAlwaysVisible extends JPanel implements MouseListener, MouseMotionListener {
     private static final long serialVersionUID = 1L;
@@ -69,7 +69,7 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
      * The image that will be used behind the button
      */
     private Image buttonIcon;
-
+    
     /**
      * The initial button color
      */
@@ -78,7 +78,7 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
      * The color the button changes to when hovered over
      */
     private Color finalColor;
-
+    
     /**
      * The shape that is filled with the colors (button's shape)
      */
@@ -87,7 +87,7 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
      * Clone of shape s but at (0, 0)
      */
     private Shape relativeS;
-
+    
     /**
      * x coordinate of button
      */
@@ -104,16 +104,17 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
      * The number of steps it takes to change the colors
      */
     private int steps = 25;
-
+    
     /**
      * Initializes a newly created {@code GradientButtonAlwaysVisible} with a rectangular shape and 25 steps to a color change
-     * @param buttonIcon        An image that is used for the button's icon
-     * @param initialColor      The initial button color
-     * @param finalColor        The color the button changes to when on the button
-     * @param x                 The x coordinate of the button
-     * @param y                 The y coordinate of the button
-     * @param width             The width of the button
-     * @param height            The height of the button
+     *
+     * @param buttonIcon   An image that is used for the button's icon
+     * @param initialColor The initial button color
+     * @param finalColor   The color the button changes to when on the button
+     * @param x            The x coordinate of the button
+     * @param y            The y coordinate of the button
+     * @param width        The width of the button
+     * @param height       The height of the button
      */
     public GradientButtonAlwaysVisible(Image buttonIcon, Color initialColor, Color finalColor, int x, int y, int width, int height) {
         this.buttonIcon = buttonIcon;
@@ -127,17 +128,18 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         addMouseListener(this);
         addMouseMotionListener(this);
     }
-
+    
     /**
      * Initializes a newly created {@code GradientButtonAlwaysVisible} with a rectangular shape
-     * @param buttonIcon        An image that is used for the button's icon
-     * @param initialColor      The initial button color
-     * @param finalColor        The color the button changes to when on the button
-     * @param stepsToChange     The number of steps it takes to change the colors
-     * @param x                 The x coordinate of the button
-     * @param y                 The y coordinate of the button
-     * @param width             The width of the button
-     * @param height            The height of the button
+     *
+     * @param buttonIcon    An image that is used for the button's icon
+     * @param initialColor  The initial button color
+     * @param finalColor    The color the button changes to when on the button
+     * @param stepsToChange The number of steps it takes to change the colors
+     * @param x             The x coordinate of the button
+     * @param y             The y coordinate of the button
+     * @param width         The width of the button
+     * @param height        The height of the button
      */
     public GradientButtonAlwaysVisible(Image buttonIcon, Color initialColor, Color finalColor, int stepsToChange, int x, int y, int width, int height) {
         this.buttonIcon = buttonIcon;
@@ -152,17 +154,18 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         addMouseListener(this);
         addMouseMotionListener(this);
     }
-
+    
     /**
      * Initializes a newly created {@code GradientButtonAlwaysVisible} with a rectangular shape
-     * @param buttonIcon        An image that is used for the button's icon
-     * @param initialColor      The initial button color
-     * @param finalColor        The color the button changes to when on the button
-     * @param s                 The shape that is filled with the colors (button's shape)
-     * @param x                 The x coordinate of the button
-     * @param y                 The y coordinate of the button
-     * @param width             The width of the button
-     * @param height            The height of the button
+     *
+     * @param buttonIcon   An image that is used for the button's icon
+     * @param initialColor The initial button color
+     * @param finalColor   The color the button changes to when on the button
+     * @param s            The shape that is filled with the colors (button's shape)
+     * @param x            The x coordinate of the button
+     * @param y            The y coordinate of the button
+     * @param width        The width of the button
+     * @param height       The height of the button
      */
     public GradientButtonAlwaysVisible(Image buttonIcon, Color initialColor, Color finalColor, Shape s, int x, int y, int width, int height) {
         this.buttonIcon = buttonIcon;
@@ -180,18 +183,19 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         addMouseListener(this);
         addMouseMotionListener(this);
     }
-
+    
     /**
      * Initializes a newly created {@code GradientButtonAlwaysVisible}
-     * @param buttonIcon        An image that is used for the button's icon
-     * @param initialColor      The initial button color
-     * @param finalColor        The color the button changes to when on the button
-     * @param s                 The shape that is filled with the colors (button's shape)
-     * @param stepsToChange     The number of steps it takes to change the colors
-     * @param x                 The x coordinate of the button
-     * @param y                 The y coordinate of the button
-     * @param width             The width of the button
-     * @param height            The height of the button
+     *
+     * @param buttonIcon    An image that is used for the button's icon
+     * @param initialColor  The initial button color
+     * @param finalColor    The color the button changes to when on the button
+     * @param s             The shape that is filled with the colors (button's shape)
+     * @param stepsToChange The number of steps it takes to change the colors
+     * @param x             The x coordinate of the button
+     * @param y             The y coordinate of the button
+     * @param width         The width of the button
+     * @param height        The height of the button
      */
     public GradientButtonAlwaysVisible(Image buttonIcon, Color initialColor, Color finalColor, Shape s, int stepsToChange, int x, int y, int width, int height) {
         this.buttonIcon = buttonIcon;
@@ -210,10 +214,11 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         addMouseListener(this);
         addMouseMotionListener(this);
     }
-
+    
     /**
      * Draws the button
-     * @param g    Graphics object from paintComponent
+     *
+     * @param g Graphics object from paintComponent
      */
     public final void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
@@ -226,7 +231,7 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         g2d.setColor(initialColor);
         g2d.fill(s);
         Composite original = g2d.getComposite();
-        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) colorChange/steps);
+        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) colorChange / steps);
         g2d.setComposite(alpha);
         g2d.setColor(finalColor);
         g2d.fill(s);
@@ -235,7 +240,7 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         afterDraw(g2d);
         g2d.dispose();
     }
-
+    
     /**
      * Whether or not the mouse is on the button, can be overridden for different specifications
      */
@@ -246,51 +251,57 @@ public abstract class GradientButtonAlwaysVisible extends JPanel implements Mous
         mousePos = new Point((int) (mousePos.getX() - getLocationOnScreen().getX()), (int) (mousePos.getY() - getLocationOnScreen().getY()));
         return relativeS.contains(mousePos.x, mousePos.y);
     }
-
+    
     /**
      * Sets the x coordinate to the given integer
-     * @param x    The new x coordinate of the GradientButtonAlwaysVisible
+     *
+     * @param x The new x coordinate of the GradientButtonAlwaysVisible
      */
     public void setX(int x) {
         this.x = x;
         setBounds(x, y, getWidth(), getHeight());
     }
-
+    
     /**
      * Sets the y coordinate to the given integer
-     * @param y    The new y coordinate of the GradientButtonAlwaysVisible
+     *
+     * @param y The new y coordinate of the GradientButtonAlwaysVisible
      */
     public void setY(int y) {
         this.y = y;
         setBounds(x, y, getWidth(), getHeight());
     }
-
+    
     /**
      * Sets the width to the given integer
-     * @param width    The new width of the GradientButtonAlwaysVisible
+     *
+     * @param width The new width of the GradientButtonAlwaysVisible
      */
     public void setWidth(int width) {
         setBounds(x, y, width, getHeight());
     }
-
+    
     /**
      * Sets the height to the given integer
-     * @param height    The new height of the GradientButtonAlwaysVisible
+     *
+     * @param height The new height of the GradientButtonAlwaysVisible
      */
     public void setHeight(int height) {
         setBounds(x, y, getWidth(), height);
     }
-
+    
     /**
      * Overridable method to do something before every time the button is drawn
-     * @param g    Graphics object from paintComponent
+     *
+     * @param g Graphics object from paintComponent
      */
     public void beforeDraw(Graphics g) {}
-
+    
     /**
      * Overridable method to do something after every time the button is drawn
-     * @param g    Graphics object from paintComponent
+     *
+     * @param g Graphics object from paintComponent
      */
     public void afterDraw(Graphics g) {}
-
+    
 }
