@@ -6,7 +6,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
-public class BadKarma {
+class BadKarma {
     private double x, y;
     private double xVelocity, yVelocity;
     
@@ -20,13 +20,12 @@ public class BadKarma {
     private boolean pulseStart = false;
     private boolean isSlow = false;
     
-    public static Player p;
+    static Player p;
     
     private Rectangle2D impurityTemp = new Rectangle2D.Double();
     
-    private Random rand = new Random();
-    
-    public BadKarma() {
+    BadKarma() {
+        Random rand = new Random();
         int side = rand.nextInt(4);
         switch(side) {
             case 0:
@@ -55,17 +54,17 @@ public class BadKarma {
         double angle = Math.atan2(deltaY, deltaX);
         if(angle < 0)
             angle += 2 * Math.PI;
-        angle += Runner.randomDouble(-Math.PI/18, Math.PI/18);
-        xVelocity = Math.cos(angle)/2;
-        yVelocity = Math.sin(angle)/2;
+        angle += Runner.randomDouble(-Math.PI / 18, Math.PI / 18);
+        xVelocity = Math.cos(angle) / 2;
+        yVelocity = Math.sin(angle) / 2;
     }
     
-    public void move() {
+    private void move() {
         x += xVelocity;
         y += yVelocity;
     }
     
-    public void draw(Graphics g) {
+    void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g.create();
         impurityTemp.setRect(x + 19, y + 19, 22, 22);
         AffineTransform transform = new AffineTransform();
@@ -93,11 +92,11 @@ public class BadKarma {
         move();
     }
     
-    public Rectangle2D getRect() {
+    Rectangle2D getRect() {
         return impurityTemp;
     }
     
-    public boolean isOutOfBounds() {
+    boolean isOutOfBounds() {
         switch(startingSide) {
             case 0:
                 return x >= Runner.mainFrame.getWidth() || y >= Runner.mainFrame.getHeight() || y <= 0;
@@ -111,7 +110,7 @@ public class BadKarma {
         return false;
     }
     
-    public void slowSpeed() {
+    void slowSpeed() {
         if(!isSlow) {
             xVelocity /= 4;
             yVelocity /= 4;
@@ -119,7 +118,7 @@ public class BadKarma {
         }
     }
     
-    public void increaseSpeed() {
+    void increaseSpeed() {
         if(isSlow) {
             xVelocity *= 4;
             yVelocity *= 4;

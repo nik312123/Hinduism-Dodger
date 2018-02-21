@@ -36,9 +36,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
+import javax.swing.WindowConstants;
 
-import nikunj.classes.GradientButton;
 import nikunj.classes.Sound;
+import nikunj.classes.PopUp;
 
 public class Runner extends JPanel implements ActionListener, KeyListener {
     private static final long serialVersionUID = 1L;
@@ -67,7 +68,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static boolean storyOpen = false;
     private static boolean instructionsOpen = false;
     private static boolean omActivated = false;
-    public static boolean isFirstTime = true;
+    static boolean isFirstTime = true;
     
     private static Player p;
     
@@ -85,16 +86,16 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static Sound punchPower;
     private static Sound omPower;
     
-    private static GradientButton resetButton;
-    private static GradientButton closeButton;
-    private static GradientButton draggableButton;
-    private static GradientButton normalButton;
-    private static GradientButton powerUpButton;
-    private static GradientButton creditsButton;
-    private static GradientButton storyButton;
-    private static GradientButton instructionsButton;
-    private static GradientButton musicButton;
-    private static GradientButton sfxButton;
+    private static GradientButtonAlwaysVisible resetButton;
+    private static GradientButtonAlwaysVisible closeButton;
+    private static GradientButtonAlwaysVisible draggableButton;
+    private static GradientButtonAlwaysVisible normalButton;
+    private static GradientButtonAlwaysVisible powerUpButton;
+    private static GradientButtonAlwaysVisible creditsButton;
+    private static GradientButtonAlwaysVisible storyButton;
+    private static GradientButtonAlwaysVisible instructionsButton;
+    private static GradientButtonAlwaysVisible musicButton;
+    private static GradientButtonAlwaysVisible sfxButton;
     
     private static PopUp popUp;
     
@@ -103,8 +104,8 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static PowerUp currentPowerUp;
     
     private static JPanel[] clickableNames = new JPanel[9];
-        
-    public static JFrame mainFrame;
+    
+    static JFrame mainFrame;
     
     private static Timer invincibilityTimer;
     private static Timer impuritySpawner;
@@ -137,18 +138,18 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
     private static BufferedImage creditText;
     private static BufferedImage instructionsText;
     private static BufferedImage sai;
-    public static BufferedImage shadow;
+    static BufferedImage shadow;
     
     private static BufferedImage[] tagline = new BufferedImage[21];
     private static BufferedImage[] grass = new BufferedImage[6];
-    public static BufferedImage[] powerUps = new BufferedImage[3];
-    public static BufferedImage[] badKarma = new BufferedImage[9];
-    public static BufferedImage[] pulse = new BufferedImage[29];
+    static BufferedImage[] powerUps = new BufferedImage[3];
+    static BufferedImage[] badKarma = new BufferedImage[9];
+    static BufferedImage[] pulse = new BufferedImage[29];
     
     private static Random rand = new Random();
     
     public static void main(String... args) throws FontFormatException, IOException, UnsupportedAudioFileException {
-        impurities = new ArrayList<BadKarma>();
+        impurities = new ArrayList<>();
         
         if(isFirstTime) {
             hpFont = Font.createFont(Font.TRUETYPE_FONT, Runner.class.getResource("/fonts/deteSans.otf").openStream()).deriveFont(18.0f);
@@ -193,18 +194,17 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         
         Runner r = new Runner();
         r.setSize(600, 610);
-                
+        
         mainFrame = new JFrame();
         mainFrame.setSize(600, 610);
         
         p = new Player();
         BadKarma.p = p;
         
-        popUp = new PopUp(30, 30, mainFrame.getWidth() - 60, mainFrame.getHeight() - 60, 100, new Color(50, 50, 50), new Color(150, 150, 150)) {
+        popUp = new PopUp(30, 30, mainFrame.getWidth() - 60, mainFrame.getHeight() - 60, 50, new Color(50, 50, 50), new Color(150, 150, 150), true) {
             private static final long serialVersionUID = 1L;
             
-            @Override
-            public void onClick() {
+            @Override public void onClick() {
                 buttonClick.play();
             }
             
@@ -217,13 +217,11 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             b.setOpaque(false);
             b.setName(Integer.toString(i));
             b.addMouseListener(new MouseListener() {
-
-                @Override
-                public void mouseClicked(MouseEvent e) {
+                
+                @Override public void mouseClicked(MouseEvent e) {
                     String url = "";
                     String name = ((JPanel) e.getSource()).getName();
                     int nameInt = Integer.parseInt(name);
-                    name = null;
                     switch(nameInt) {
                         case 0:
                             url = "http://soundimage.org/";
@@ -260,15 +258,14 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         e1.printStackTrace();
                     }
                 }
-
-                @Override
-                public void mousePressed(MouseEvent e) {}
-
-                @Override
-                public void mouseReleased(MouseEvent e) {}
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
+                
+                @Override public void mousePressed(MouseEvent e) {
+                }
+                
+                @Override public void mouseReleased(MouseEvent e) {
+                }
+                
+                @Override public void mouseEntered(MouseEvent e) {
                     if(b.isVisible()) {
                         mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         popUp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -276,8 +273,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     }
                 }
                 
-                @Override
-                public void mouseExited(MouseEvent e) {
+                @Override public void mouseExited(MouseEvent e) {
                     mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     popUp.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     b.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -295,39 +291,37 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         clickableNames[7].setSize(62, 13);
         clickableNames[8].setSize(76, 13);
         
-        resetButton = new GradientButton(reset, new Color(0, 191, 255), Color.GREEN, new RoundRectangle2D.Double(0, 0, 350, 100, 75, 75), 100, (mainFrame.getWidth() - 350)/2, 450, 350, 100) {
+        resetButton = new GradientButtonAlwaysVisible(reset, new Color(0, 191, 255), Color.GREEN, new RoundRectangle2D.Double(0, 0, 350, 100, 75, 75), 100, (mainFrame.getWidth() - 350) / 2, 450, 350, 100) {
             private static final long serialVersionUID = 1L;
             
             private boolean enteredShape = false;
             
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible()) {
                     buttonClick.play();
                     reset();
                 }
             }
             
-            @Override
-            public void mousePressed(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseReleased(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseDragged(MouseEvent e) {}
+            @Override public void mouseDragged(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
-            @Override
-            public void beforeDraw(Graphics g) {
+            @Override public void beforeDraw(Graphics g) {
                 if(!enteredShape && onButton()) {
                     buttonHover.play();
                     enteredShape = true;
@@ -337,102 +331,95 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             }
             
         };
-        closeButton = new GradientButton(close, new Color(105, 105, 105), Color.RED, 40, 2, 2, 24, 24) {
+        closeButton = new GradientButtonAlwaysVisible(close, new Color(105, 105, 105), Color.RED, 40, 2, 2, 24, 24) {
             private static final long serialVersionUID = 1L;
             
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            @Override public void mouseClicked(MouseEvent e) {
                 System.exit(0);
             }
             
-            @Override
-            public void mousePressed(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseReleased(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseDragged(MouseEvent e) {}
+            @Override public void mouseDragged(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        draggableButton = new GradientButton(draggable, new Color(105, 105, 105), Color.BLUE, 40, 30, 2, 24, 24) {
+        draggableButton = new GradientButtonAlwaysVisible(draggable, new Color(105, 105, 105), Color.BLUE, 40, 30, 2, 24, 24) {
             private static final long serialVersionUID = 1L;
             private int xPos, yPos;
             
-            @Override
-            public void mouseClicked(MouseEvent e) {}
+            @Override public void mouseClicked(MouseEvent e) {
+            }
             
-            @Override
-            public void mousePressed(MouseEvent e) {
+            @Override public void mousePressed(MouseEvent e) {
                 xPos = e.getX();
                 yPos = e.getY();
             }
             
-            @Override
-            public void mouseReleased(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseDragged(MouseEvent e) {
+            @Override public void mouseDragged(MouseEvent e) {
                 mainFrame.setLocation((int) (mainFrame.getLocation().getX() + e.getX() - xPos), (int) (mainFrame.getLocation().getY() + e.getY() - yPos));
             }
             
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        musicButton = new GradientButton(music, new Color(105, 105, 105), new Color(0, 208, 208), 545, 2, 24, 24) {
+        musicButton = new GradientButtonAlwaysVisible(music, new Color(105, 105, 105), new Color(0, 208, 208), 545, 2, 24, 24) {
             private static final long serialVersionUID = 1L;
             
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if(musicMuted) {
-                    menu.changeVolume(1);
-                    main.changeVolume(1);
-                    gameOver.changeVolume(1);
-                }
-                else {
-                    menu.changeVolume(0);
-                    main.changeVolume(0);
-                    gameOver.changeVolume(0);
-                }
+            @Override public void mouseClicked(MouseEvent e) {
+                double volume;
+                if(musicMuted)
+                    volume = 1;
+                else
+                    volume = 0;
+                menu.changeVolume(volume);
+                main.changeVolume(volume);
+                gameOver.changeVolume(volume);
                 musicMuted = !musicMuted;
             }
             
-            @Override
-            public void mousePressed(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseReleased(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseDragged(MouseEvent e) {}
+            @Override public void mouseDragged(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
-            @Override
-            public void afterDraw(Graphics g) {
+            @Override public void afterDraw(Graphics g) {
                 if(musicMuted) {
                     Graphics2D g2d = (Graphics2D) g;
                     g2d.setColor(Color.WHITE);
@@ -443,11 +430,10 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             
         };
         
-        sfxButton = new GradientButton(sfx, new Color(105, 105, 105), Color.GREEN, 573, 2, 24, 24) {
+        sfxButton = new GradientButtonAlwaysVisible(sfx, new Color(105, 105, 105), Color.GREEN, 573, 2, 24, 24) {
             private static final long serialVersionUID = 1L;
             
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            @Override public void mouseClicked(MouseEvent e) {
                 if(sfxMuted) {
                     hit.changeVolume(1);
                     buttonHover.changeVolume(1);
@@ -461,26 +447,25 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 sfxMuted = !sfxMuted;
             }
             
-            @Override
-            public void mousePressed(MouseEvent e) {}
+            @Override public void mousePressed(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseReleased(MouseEvent e) {}
+            @Override public void mouseReleased(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseEntered(MouseEvent e) {}
+            @Override public void mouseEntered(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseExited(MouseEvent e) {}
+            @Override public void mouseExited(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseDragged(MouseEvent e) {}
+            @Override public void mouseDragged(MouseEvent e) {
+            }
             
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
-            @Override
-            public void afterDraw(Graphics g) {
+            @Override public void afterDraw(Graphics g) {
                 if(sfxMuted) {
                     Graphics2D g2d = (Graphics2D) g;
                     g2d.setColor(Color.WHITE);
@@ -490,174 +475,164 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             }
             
         };
-        normalButton = new GradientButton(normal, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 101, 254, normal.getWidth(), normal.getHeight()) {
+        normalButton = new GradientButtonAlwaysVisible(normal, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 101, 254, normal.getWidth(), normal.getHeight()) {
             private static final long serialVersionUID = 1L;
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding()) {
                     isBeginning = false;
                     buttonClick.play();
                     impuritySpawner.start();
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            
+            @Override public void mousePressed(MouseEvent e) {
+            }
+            
+            @Override public void mouseReleased(MouseEvent e) {
+            }
+            
+            @Override public void mouseEntered(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseDragged(MouseEvent e) {}
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            
+            @Override public void mouseExited(MouseEvent e) {
+            }
+            
+            @Override public void mouseDragged(MouseEvent e) {
+            }
+            
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        powerUpButton = new GradientButton(powerUp, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 351, 254, powerUp.getWidth(), powerUp.getHeight()) {
+        powerUpButton = new GradientButtonAlwaysVisible(powerUp, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 351, 254, powerUp.getWidth(), powerUp.getHeight()) {
             private static final long serialVersionUID = 1L;
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     isBeginning = false;
-                    buttonClick.play();
-                    impuritySpawner.start();
-                    powerUpTimer.start();
+                buttonClick.play();
+                impuritySpawner.start();
+                powerUpTimer.start();
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            
+            @Override public void mousePressed(MouseEvent e) {
+            }
+            
+            @Override public void mouseReleased(MouseEvent e) {
+            }
+            
+            @Override public void mouseEntered(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseDragged(MouseEvent e) {}
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            
+            @Override public void mouseExited(MouseEvent e) {
+            }
+            
+            @Override public void mouseDragged(MouseEvent e) {
+            }
+            
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        creditsButton = new GradientButton(credits, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 39, 393, credits.getWidth(), credits.getHeight()) {
+        creditsButton = new GradientButtonAlwaysVisible(credits, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 39, 393, credits.getWidth(), credits.getHeight()) {
             private static final long serialVersionUID = 1L;
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding()) {
                     popUp.setExpanding(true);
                     creditsOpen = true;
                     buttonClick.play();
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            
+            @Override public void mousePressed(MouseEvent e) {
+            }
+            
+            @Override public void mouseReleased(MouseEvent e) {
+            }
+            
+            @Override public void mouseEntered(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseDragged(MouseEvent e) {}
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            
+            @Override public void mouseExited(MouseEvent e) {
+            }
+            
+            @Override public void mouseDragged(MouseEvent e) {
+            }
+            
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        storyButton = new GradientButton(story, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 226, 393, story.getWidth(), story.getHeight()) {
+        storyButton = new GradientButtonAlwaysVisible(story, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 226, 393, story.getWidth(), story.getHeight()) {
             private static final long serialVersionUID = 1L;
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding()) {
                     popUp.setExpanding(true);
                     storyOpen = true;
                     buttonClick.play();
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            
+            @Override public void mousePressed(MouseEvent e) {
+            }
+            
+            @Override public void mouseReleased(MouseEvent e) {
+            }
+            
+            @Override public void mouseEntered(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseDragged(MouseEvent e) {}
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            
+            @Override public void mouseExited(MouseEvent e) {
+            }
+            
+            @Override public void mouseDragged(MouseEvent e) {
+            }
+            
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
-        instructionsButton = new GradientButton(instructions, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 413, 393, instructions.getWidth(), instructions.getHeight()) {
+        instructionsButton = new GradientButtonAlwaysVisible(instructions, BUTTON_COLOR_INITIAL, BUTTON_COLOR_FINAL, 413, 393, instructions.getWidth(), instructions.getHeight()) {
             private static final long serialVersionUID = 1L;
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
+            
+            @Override public void mouseClicked(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding()) {
                     popUp.setExpanding(true);
                     instructionsOpen = true;
                     buttonClick.play();
                 }
             }
-
-            @Override
-            public void mousePressed(MouseEvent e) {}
-
-            @Override
-            public void mouseReleased(MouseEvent e) {}
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            
+            @Override public void mousePressed(MouseEvent e) {
+            }
+            
+            @Override public void mouseReleased(MouseEvent e) {
+            }
+            
+            @Override public void mouseEntered(MouseEvent e) {
                 if(isVisible() && !popUp.getExpanding())
                     buttonHover.play();
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {}
-
-            @Override
-            public void mouseDragged(MouseEvent e) {}
-
-            @Override
-            public void mouseMoved(MouseEvent e) {}
+            
+            @Override public void mouseExited(MouseEvent e) {
+            }
+            
+            @Override public void mouseDragged(MouseEvent e) {
+            }
+            
+            @Override public void mouseMoved(MouseEvent e) {
+            }
             
         };
         resetButton.setVisible(false);
@@ -688,7 +663,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         for(JPanel b : clickableNames)
             popUp.add(b);
         
-        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.addKeyListener(r);
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         mainFrame.setLocation(dim.width / 2 - mainFrame.getWidth() / 2, dim.height / 2 - mainFrame.getHeight() / 2);
@@ -711,15 +686,14 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         powerUpTimer.setRepeats(false);
         
         drawingDone = new CountDownLatch(1);
-                
+        
         menu.play();
-                
+        
         mainFrame.setVisible(true);
         mainFrame.requestFocus();
     }
     
-    @Override
-    public void paintComponent(Graphics g) {
+    @Override public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if(!resetting) {
             if(alwaysOnTop != 0)
@@ -739,9 +713,9 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 AffineTransform mokshaTransform = new AffineTransform();
                 mokshaTransform.translate(0, mokshaY);
                 g2d.drawImage(moksha, mokshaTransform, null);
-                mokshaTheta += Math.PI/360;
+                mokshaTheta += Math.PI / 360;
                 mokshaY = 10 * Math.sin(mokshaTheta);
-                if(mokshaTheta >= 2 * Math.PI - Math.PI/3600)
+                if(mokshaTheta >= 2 * Math.PI - Math.PI / 3600)
                     mokshaTheta = 0;
                 if(popUp.getExpanding()) {
                     normalButton.setVisible(false);
@@ -750,7 +724,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                     storyButton.setVisible(false);
                     instructionsButton.setVisible(false);
                 }
-                else if(popUp.getWidth() == 0){
+                else if(popUp.getWidth() == 0) {
                     normalButton.setVisible(true);
                     powerUpButton.setVisible(true);
                     creditsButton.setVisible(true);
@@ -775,7 +749,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 drawInstructions(g2d);
                 if(popUp.percentageExpanded() == 1.0) {
                     g2d.setFont(scoreFont.deriveFont(20f));
-                    g2d.drawString("Click on pop-up to close.", 300 - g2d.getFontMetrics().stringWidth("Click on pop-up to close.")/2, 575);
+                    g2d.drawString("Click on pop-up to close.", 300 - g2d.getFontMetrics().stringWidth("Click on pop-up to close.") / 2, 575);
                 }
             }
             else if(p.getHealthBar().getPercentage() != 0) {
@@ -868,7 +842,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 g2d.drawString(STORY_STRINGS[i], 45, stringY);
                 stringY += 40;
             }
-            g2d.drawImage(sai, 300 - sai.getWidth()/2, 310, null);
+            g2d.drawImage(sai, 300 - sai.getWidth() / 2, 310, null);
         }
     }
     
@@ -913,21 +887,19 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         omActivated = true;
                         impuritySpawner.setDelay(impuritySpawner.getDelay() * 4);
                         speedMultiplier = 4;
-                        deactivateOm = new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    Thread.sleep(10000);
-                                    omActivated = false;
-                                    impuritySpawner.setDelay(impuritySpawner.getDelay()/4);
-                                    speedMultiplier = 1;
-                                    for(BadKarma b : impurities)
-                                        b.increaseSpeed();
-                                    powerUpTimer.start();
-                                }
-                                catch(InterruptedException e) {}
+                        deactivateOm = new Thread(() -> {
+                            try {
+                                Thread.sleep(10000);
+                                omActivated = false;
+                                impuritySpawner.setDelay(impuritySpawner.getDelay() / 4);
+                                speedMultiplier = 1;
+                                for(BadKarma b : impurities)
+                                    b.increaseSpeed();
+                                powerUpTimer.start();
                             }
-                        };
+                            catch(InterruptedException e) {
+                            }
+                        });
                         deactivateOm.start();
                         omPower.play();
                         break;
@@ -939,20 +911,18 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                         powerUpTimer.start();
                         break;
                     case 2:
-                        deactivatePunching = new Thread() {
-                            @Override
-                            public void run() {
-                                try {
-                                    p.setPunching(true);
-                                    Thread.sleep(10000);
-                                    p.setPunching(false);
-                                    Thread.sleep(1000);
-                                    p.setHurting();
-                                    powerUpTimer.start();
-                                }
-                                catch(InterruptedException e) {}
+                        deactivatePunching = new Thread(() -> {
+                            try {
+                                p.setPunching(true);
+                                Thread.sleep(10000);
+                                p.setPunching(false);
+                                Thread.sleep(1000);
+                                p.setHurting();
+                                powerUpTimer.start();
                             }
-                        };
+                            catch(InterruptedException e) {
+                            }
+                        });
                         deactivatePunching.start();
                         punchPower.play();
                         break;
@@ -970,7 +940,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
                 omEllipse = new Ellipse2D.Double(omEllipse.getX() - 2.5, omEllipse.getY() - 2.5, omEllipse.getWidth() + 5, omEllipse.getHeight() + 5);
             g2d.setColor(Color.BLUE);
             Composite comp = g2d.getComposite();
-            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((1715 - omEllipse.getWidth())/1715.0 * 0.75 + 0.25)));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) ((1715 - omEllipse.getWidth()) / 1715.0 * 0.75 + 0.25)));
             g2d.fill(omEllipse);
             g2d.setComposite(comp);
         }
@@ -999,23 +969,22 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         g2d.setFont(hpFont.deriveFont(124.0f));
         g2d.setColor(Color.WHITE);
         String gameOver = "Game Over";
-        g2d.drawString(gameOver, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(gameOver))/2 + 5, 200);
+        g2d.drawString(gameOver, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(gameOver)) / 2 + 5, 200);
         g2d.setFont(scoreFont.deriveFont(90.0f));
         String scoreString = "Score: " + score;
-        g2d.drawString(scoreString, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(scoreString))/2, 400);
+        g2d.drawString(scoreString, (mainFrame.getWidth() - g2d.getFontMetrics().stringWidth(scoreString)) / 2, 400);
         resetButton.draw(g2d);
         resetButton.setVisible(true);
     }
     
-    public static double randomDouble(double min, double max) {
+    static double randomDouble(double min, double max) {
         return min + (max - min) * rand.nextDouble();
     }
     
-    @Override
-    public void keyTyped(KeyEvent e) {}
+    @Override public void keyTyped(KeyEvent e) {
+    }
     
-    @Override
-    public void keyPressed(KeyEvent e) {
+    @Override public void keyPressed(KeyEvent e) {
         switch(e.getKeyCode()) {
             case KeyEvent.VK_UP:
             case KeyEvent.VK_W:
@@ -1036,8 +1005,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         }
     }
     
-    @Override
-    public void keyReleased(KeyEvent e) {
+    @Override public void keyReleased(KeyEvent e) {
         switch(e.getKeyCode()) {
             case KeyEvent.VK_UP:
             case KeyEvent.VK_W:
@@ -1058,8 +1026,7 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
         }
     }
     
-    @Override
-    public void actionPerformed(ActionEvent e) {
+    @Override public void actionPerformed(ActionEvent e) {
         if(e == null || e.getActionCommand() == null || (!e.getActionCommand().equals("spawn") && !e.getActionCommand().equals("invincible") && !e.getActionCommand().equals("power")))
             repaint();
         else if(e.getActionCommand().equals("spawn")) {
@@ -1073,81 +1040,78 @@ public class Runner extends JPanel implements ActionListener, KeyListener {
             injured = false;
     }
     
-    public static boolean isInjured() {
+    static boolean isInjured() {
         return injured;
     }
     
-    public static void reset() {
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                resetting = true;
-                try {
-                    drawingDone.await();
-                }
-                catch(InterruptedException e) {
-                    e.printStackTrace();
-                }
-                gameOver.stop();
-                invincibilityTimer.stop();
-                invincibilityTimer = null;
-                impuritySpawner.stop();
-                impuritySpawner = null;
-                drawTimer.stop();
-                drawTimer = null;
-                score = 0;
-                scoreCounter = 0;
-                impuritySpawnerCounter = 0;
-                nameStringX = 610;
-                nameStringCounter = 0;
-                taglineFrame = 0;
-                taglineCounter = 0;
-                alwaysOnTop = 50;
-                grassCounter = 0;
-                grassFrame = 0;
-                speedMultiplier = 1;
-                mokshaY = 0;
-                mokshaTheta = 0;
-                injured = false;
-                isBeginning = true;
-                isFirstTime = false;
-                creditsOpen = false;
-                storyOpen = false;
-                instructionsOpen = false;
-                omActivated = false;
-                popUp = null;
-                p = null;
-                for(int i = 0; i < clickableNames.length; ++i)
-                    clickableNames[i] = null;
-                clickableNames = new JPanel[9];
-                BadKarma.p = null;
-                mainFrame.dispose();
-                mainFrame = null;
-                currentPowerUp = null;
-                drawingDone = null;
-                impurities = null;
-                deactivateOm = null;
-                deactivatePunching = null;
-                resetButton = null;
-                closeButton = null;
-                draggableButton = null;
-                normalButton = null;
-                powerUpButton = null;
-                creditsButton = null;
-                storyButton = null;
-                instructionsButton = null;
-                musicButton = null;
-                sfxButton = null;
-                System.gc();
-                resetting = false;
-                try {
-                    main();
-                }
-                catch(FontFormatException | IOException | UnsupportedAudioFileException e) {
-                    e.printStackTrace();
-                }
+    private static void reset() {
+        Thread t = new Thread(() -> {
+            resetting = true;
+            try {
+                drawingDone.await();
             }
-        };
+            catch(InterruptedException e) {
+                e.printStackTrace();
+            }
+            gameOver.stop();
+            invincibilityTimer.stop();
+            invincibilityTimer = null;
+            impuritySpawner.stop();
+            impuritySpawner = null;
+            drawTimer.stop();
+            drawTimer = null;
+            score = 0;
+            scoreCounter = 0;
+            impuritySpawnerCounter = 0;
+            nameStringX = 610;
+            nameStringCounter = 0;
+            taglineFrame = 0;
+            taglineCounter = 0;
+            alwaysOnTop = 50;
+            grassCounter = 0;
+            grassFrame = 0;
+            speedMultiplier = 1;
+            mokshaY = 0;
+            mokshaTheta = 0;
+            injured = false;
+            isBeginning = true;
+            isFirstTime = false;
+            creditsOpen = false;
+            storyOpen = false;
+            instructionsOpen = false;
+            omActivated = false;
+            popUp = null;
+            p = null;
+            for(int i = 0; i < clickableNames.length; ++i)
+                clickableNames[i] = null;
+            clickableNames = new JPanel[9];
+            BadKarma.p = null;
+            mainFrame.dispose();
+            mainFrame = null;
+            currentPowerUp = null;
+            drawingDone = null;
+            impurities = null;
+            deactivateOm = null;
+            deactivatePunching = null;
+            resetButton = null;
+            closeButton = null;
+            draggableButton = null;
+            normalButton = null;
+            powerUpButton = null;
+            creditsButton = null;
+            storyButton = null;
+            instructionsButton = null;
+            musicButton = null;
+            sfxButton = null;
+            System.gc();
+            resetting = false;
+            try {
+                main();
+            }
+            catch(FontFormatException | IOException | UnsupportedAudioFileException e) {
+                e.printStackTrace();
+            }
+        });
         t.start();
     }
     

@@ -26,10 +26,9 @@ public class PowerUp {
     
     private BufferedImage powerUpImage;
     
-    private static final Color[] RAINBOW = {Color.RED, new Color(255,140,0), Color.YELLOW, Color.GREEN, Color.BLUE, new Color(111, 0, 255), new Color(238, 130, 238)};
+    private static final Color[] RAINBOW = {Color.RED, new Color(255, 140, 0), Color.YELLOW, Color.GREEN, Color.BLUE, new Color(111, 0, 255), new Color(238, 130, 238)};
     
-    
-    public PowerUp() {
+    PowerUp() {
         Random rand = new Random();
         powerUpType = rand.nextInt(3);
         powerUpImage = Runner.powerUps[powerUpType];
@@ -40,25 +39,25 @@ public class PowerUp {
                 x = -35;
                 y = rand.nextInt(Runner.mainFrame.getHeight() - 30);
                 startingSide = 0;
-                angle = Runner.randomDouble(11 * Math.PI/6 + (y - 290)/290.0 * 7 * Math.PI/24, 13 * Math.PI/6 + (y - 290)/290.0 * 7 * Math.PI/24);
+                angle = Runner.randomDouble(11 * Math.PI / 6 + (y - 290) / 290.0 * 7 * Math.PI / 24, 13 * Math.PI / 6 + (y - 290) / 290.0 * 7 * Math.PI / 24);
                 break;
             case 1:
                 x = Runner.mainFrame.getWidth() + 5;
                 y = rand.nextInt(Runner.mainFrame.getHeight() - 30);
                 startingSide = 1;
-                angle = Runner.randomDouble(5 * Math.PI/6 - (y - 290)/290.0 * 7 * Math.PI/24, 7 * Math.PI/6 - (y - 290)/290.0 * 7 * Math.PI/24);
+                angle = Runner.randomDouble(5 * Math.PI / 6 - (y - 290) / 290.0 * 7 * Math.PI / 24, 7 * Math.PI / 6 - (y - 290) / 290.0 * 7 * Math.PI / 24);
                 break;
             case 2:
                 x = rand.nextInt(Runner.mainFrame.getWidth() - 30);
                 y = 20;
                 startingSide = 2;
-                angle = Runner.randomDouble(4 * Math.PI/3 - (x - 285)/285.0 * 7 * Math.PI/24, 5 * Math.PI/3 - (x - 285)/285.0 * 7 * Math.PI/24);
+                angle = Runner.randomDouble(4 * Math.PI / 3 - (x - 285) / 285.0 * 7 * Math.PI / 24, 5 * Math.PI / 3 - (x - 285) / 285.0 * 7 * Math.PI / 24);
                 break;
             case 3:
                 x = rand.nextInt(Runner.mainFrame.getWidth() - 30);
                 y = Runner.mainFrame.getHeight() + 5;
                 startingSide = 3;
-                angle = Runner.randomDouble(Math.PI/3 + (x - 285)/285.0 * 7 * Math.PI/24, 2 * Math.PI/3 + (x - 285)/285.0 * 7 * Math.PI/24);
+                angle = Runner.randomDouble(Math.PI / 3 + (x - 285) / 285.0 * 7 * Math.PI / 24, 2 * Math.PI / 3 + (x - 285) / 285.0 * 7 * Math.PI / 24);
                 break;
         }
         xVelocity = Math.cos(angle);
@@ -86,14 +85,14 @@ public class PowerUp {
         Graphics2D g2d = (Graphics2D) g.create();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Composite original = g2d.getComposite();
-        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) glowStep/100);
+        AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) glowStep / 100);
         g2d.setComposite(alpha);
         AffineTransform trans = new AffineTransform();
-        trans.translate(x + (double) powerUpImage.getWidth()/2 - 25, y + (double) powerUpImage.getHeight()/2 - 25);
+        trans.translate(x + (double) powerUpImage.getWidth() / 2 - 25, y + (double) powerUpImage.getHeight() / 2 - 25);
         g2d.setColor(RAINBOW[glowIndex]);
         g2d.fill(trans.createTransformedShape(GLOW));
         g2d.setComposite(original);
-        trans.translate(-((double) powerUpImage.getWidth()/2 - 25), -((double) powerUpImage.getWidth()/2 - 25));
+        trans.translate(-((double) powerUpImage.getWidth() / 2 - 25), -((double) powerUpImage.getWidth() / 2 - 25));
         g2d.setColor(Color.BLACK);
         g2d.drawImage(powerUpImage, trans, null);
         move();

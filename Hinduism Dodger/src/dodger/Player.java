@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Player {
-    private double x = Runner.mainFrame.getWidth()/2, y = (Runner.mainFrame.getHeight() - 55)/2 + 55;
+    private double x = Runner.mainFrame.getWidth() / 2, y = (Runner.mainFrame.getHeight() - 55) / 2 + 55;
     private double xVelocity = 0, yVelocity = 0;
     private static double angle;
     
@@ -32,13 +32,13 @@ public class Player {
     private boolean isVisible = true;
     
     private HealthBar hb = new HealthBar(new Color(192, 192, 192), Color.GREEN, 50, 35, 200, 15);
-            
+    
     private static BufferedImage[] monk = new BufferedImage[8];
     private static BufferedImage[] monkBody = new BufferedImage[8];
     private static BufferedImage[] monkArms = new BufferedImage[8];
     private static BufferedImage[] punchingArms = new BufferedImage[10];
     
-    public Player() {
+    Player() {
         if(Runner.isFirstTime) {
             try {
                 for(int i = 0; i < 8; ++i) {
@@ -69,18 +69,18 @@ public class Player {
         Graphics2D g2d = (Graphics2D) g.create();
         AffineTransform transform = new AffineTransform();
         BufferedImage shadow = Runner.shadow;
-        transform.translate(x - shadow.getWidth()/2, y - shadow.getHeight()/2);
-        transform.rotate(angle, shadow.getWidth()/2, shadow.getHeight()/2);
+        transform.translate(x - shadow.getWidth() / 2, y - shadow.getHeight() / 2);
+        transform.rotate(angle, shadow.getWidth() / 2, shadow.getHeight() / 2);
         if(isVisible)
             g2d.drawImage(shadow, transform, null);
         constrain();
         transform.setToIdentity();
-        transform.translate(x - monkBody[monkFrame].getWidth()/2.0, y - monkBody[monkFrame].getHeight()/2.0);
+        transform.translate(x - monkBody[monkFrame].getWidth() / 2.0, y - monkBody[monkFrame].getHeight() / 2.0);
         angle = Math.atan2(yVelocity, xVelocity);
         if(angle < 0)
             angle += 2 * Math.PI;
-        angle += Math.PI/2;
-        transform.rotate(angle, monkBody[monkFrame].getWidth()/2, monkBody[monkFrame].getHeight()/2);
+        angle += Math.PI / 2;
+        transform.rotate(angle, monkBody[monkFrame].getWidth() / 2, monkBody[monkFrame].getHeight() / 2);
         if(isVisible) {
             if(!up && !down && !left && !right)
                 monkFrame = 0;
@@ -94,7 +94,7 @@ public class Player {
         g2d.dispose();
     }
     
-    public int[][] rotatedGrid() {
+    private int[][] rotatedGrid() {
         int[][] rotatedGrid = new int[60][60];
         double sin = Math.sin(angle);
         double cos = Math.cos(angle);
@@ -188,7 +188,7 @@ public class Player {
         int[][] rotatedGrid = rotatedGrid();
         for(int i = 0; i < 60; i++) {
             for(int j = 0; j < 60; j++) {
-                if(rotatedGrid[i][j] != 0 && impurityRect.contains(new Point2D.Double(x - 60/2.0 + j, y - 60/2.0 + i))) {
+                if(rotatedGrid[i][j] != 0 && impurityRect.contains(new Point2D.Double(x - 60 / 2.0 + j, y - 60 / 2.0 + i))) {
                     return true;
                 }
             }
@@ -200,7 +200,7 @@ public class Player {
         int[][] rotatedGrid = rotatedGrid();
         for(int i = 0; i < 60; i++) {
             for(int j = 0; j < 60; j++) {
-                if(rotatedGrid[i][j] != 0 && powerUpCircle.contains(new Point2D.Double(x - 60/2.0 + j, y - 60/2.0 + i))) {
+                if(rotatedGrid[i][j] != 0 && powerUpCircle.contains(new Point2D.Double(x - 60 / 2.0 + j, y - 60 / 2.0 + i))) {
                     return true;
                 }
             }
